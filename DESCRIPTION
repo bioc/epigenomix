@@ -1,0 +1,19 @@
+Package: epigenomix
+Type: Package
+Title: Epigenetic and gene expression data normalization and
+        integration with mixture models
+Version: 0.99.0
+Date: 2013-03-13
+Author: Hans-Ulrich Klein, Martin Schaefer
+Maintainer: Hans-Ulrich Klein <h.klein@uni-muenster.de>
+biocViews: ChIPseq, GeneExpression, DifferentialExpression,
+        Classification
+Depends: R (>= 2.12.0), methods, Biobase, IRanges, GenomicRanges
+Imports: methods, BiocGenerics, Biobase, IRanges, GenomicRanges,
+        beadarray
+Description: A package for the integrative analysis of microarray based gene
+ expression and histone modification data obtained by ChIP-seq. The package
+ provides methods for data preprocessing and matching as well as methods
+ for fitting bayesian mixture models in order to detect genes with
+ differences in both data types.
+License: LGPL-3

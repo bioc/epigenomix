@@ -1,0 +1,222 @@
+%\VignetteIndexEntry{epigenomix package vignette}
+%\VignetteDepends{}
+%\VignetteKeywords{}
+%\VignettePackage{epigenomix}
+
+\documentclass[10pt]{article}
+
+\usepackage{times}
+\usepackage{hyperref}
+\usepackage{verbatim} %TEMP: only for block comments
+\usepackage{float}
+
+\newcommand{\Rfunction}[1]{{\texttt{#1}}}
+\newcommand{\Robject}[1]{{\texttt{#1}}}
+\newcommand{\Rpackage}[1]{{\textit{#1}}}
+\newcommand{\Rmethod}[1]{{\texttt{#1}}}
+\newcommand{\Rfunarg}[1]{{\texttt{#1}}}
+\newcommand{\Rclass}[1]{{\textit{#1}}}
+\newcommand{\Rcode}[1]{{\texttt{#1}}}
+
+\SweaveOpts{prefix.string=epigenomix}
+
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+
+\title{epigenomix --- Epigenetic and gene expression data normalization and integration with mixture models}
+\author{Hans-Ulrich Klein, Martin Sch\"{a}fer}
+\date{March 13, 2013}
+
+\maketitle
+
+\tableofcontents
+
+<<echo=FALSE>>=
+options(width=60)
+options(continue=" ")
+@
+
+\newpage
+
+\section{Introduction}
+This package provides methods for an integrative analysis of gene expression and epigenetic data, especially histone ChIP-seq data. Histone modifications are an epigenetic key mechanism to activate or repress the expression of genes. Several data sets consisting of matched microarray expression data and histone modification data measured by ChIP-seq have been published. However, both data types are often analysed separately and results are compared afterwards. The methods implemented here are designed to detect genes that are differentially expressed between two conditions due to an altered histone modification and are suitable for very small sample sizes.\\
+Briefly, the following workflow is described in this documnet:
+\begin{enumerate}
+  \item Matching of both data types by assigning the number of ChIP-seq reads aligning within the promoter region of a gene to the expression value of that gene
+  \item Normalization of ChIP-seq values
+  \item Calculation of a correlation score for each gene by multiplying the standardized difference of ChIP-seq values by the standardized difference of expression values
+  \item Fitting a (Bayesian) mixture model to this score: The implicit assignment of genes to mixture components is used to classify genes into one of the following groups: (i) Genes with equally directed differences in both data sets, (ii) genes with reversely directed differences in both data sets and (iii) genes with no differences in at least one of the two data sets. Group (iii) is represented by centred normal components whereas an exponential component is used for group (i) and a mirrored exponential component for group (ii).
+\end{enumerate}
+\pagebreak
+
+\section{Data preprocessing and normalization}
+\subsection{Gene expression data}
+First, we load an example gene expression data set. The data set consists of four samples. Two wild type replicates and two \textit{CEBPA} knock-out replicates. The differences between \textit{CEBPA} knock-down and wild type samples are of interest. The data set is stored as an \Rclass{ExpressionSet} object and was reduced to a few probesets on chromosome 1.
+<<label=GEdata>>=
+library(epigenomix)
+data(eSet)
+pData(eSet)
+@
+Data was measured using Affymetrix Mouse Gene 1.0 ST arrays and RMA normalized. See packages \Rpackage{affy} and \Rpackage{Biobase} how to process affymetrix gene expression data.
+
+\subsection{Histone ChIP-seq data}
+The example histone ChIP-seq data is stored as \Rclass{GRangesList} object:
+<<label=ChIPdata>>=
+data(mappedReads)
+names(mappedReads)
+@
+There are two elements within the list. One \textit{CEBPA} wild type and one knock-out sample. Most of the originally obtained reads were removed to reduce storage space. Further, the reads were extended towards the 3 prime end to the mean DNA fragment size of 200bps and duplicated reads were removed. See R packages \Rpackage{Rsamtools} and \Rpackage{GenomicRanges} how to read in and process sequence reads.
+
+\subsection{Data matching}
+The presented ChIP-seq data measured H3K4me3 histone modifications. This modification primarily occures at promoter regions. Hence, we assign ChIP-seq values to probesets by counting the number of reads lying wihtin the promoter of the measured transcript. Therefore, we first create a list with one element for each probeset that stores the Ensemble transcript IDs of all transcripts measured by that probeset:
+<<label=ProbeToTranscript>>=
+probeToTrans <- fData(eSet)$transcript
+probeToTrans <- strsplit(probeToTrans, ",")
+names(probeToTrans) <- featureNames(eSet)
+@
+Next, we need the transcriptional start sites for each transcript.
+<<label=TranscriptToTSS>>=
+data(transToTSS)
+head(transToTSS)
+@
+Such a data frame can be obtained e.g. using \Rpackage{biomaRt}:
+<<label=BiomaRt,eval=FALSE>>=
+library("biomaRt")
+transcripts <- unique(unlist(transToTSS))
+mart <- useMart("ensembl", dataset="mmusculus_gene_ensembl")
+transToTSS <- getBM(attributes=c("ensembl_transcript_id",
+    "chromosome_name", "transcript_start",
+    "transcript_end", "strand"),
+    filters="ensembl_transcript_id",
+    values=transcripts, mart=mart)
+@
+Having these information, the promoter region for each probeset can be calculated unsing \Rmethod{matchProbeToPromoter}. Argument \Rfunarg{mode} defines how probesets with multiple transcripts should be handled.
+<<label=dataMatching>>=
+promoters <- matchProbeToPromoter(probeToTrans,
+    transToTSS, promWidth=6000, mode="union")
+promoters[["10345616"]]
+@
+Note that some promoter regions, like for probeset \Rcode{"10345616"}, may consist of more than one interval.\\
+Finally, \Rmethod{summarizeReads} is used to count the number of reads within the promoter regions:
+<<label=makeChIPseqSet>>=
+chipSetRaw <- summarizeReads(mappedReads, promoters, summarize="add")
+chipSetRaw
+head(chipVals(chipSetRaw))
+@
+The method returns an object of class \Rclass{ChIPseqSet}, which is derived from class \Rclass{eSet} and is the ChIP-seq counterpart to \Rclass{ExpressionSet}.
+\pagebreak
+
+
+\section{ChIP-seq data normalization}
+It may be necessary to normalize ChIP-seq data due to different experimental conditions during ChIP.
+<<label=normalizeData>>=
+chipSet <- normalizeChIP(chipSetRaw, method="quantile")
+@
+In addition to quantile normalization, other methods like the method presented by \cite{Anders2010} are available.
+\begin{figure}[H]
+\begin{center}
+<<label=normalizationPlot,fig=TRUE,width=10,height=5>>=
+par(mfrow=c(1,2))
+plot(chipVals(chipSetRaw)[,1], chipVals(chipSetRaw)[,2],
+     xlim=c(1,600), ylim=c(1,600), main="Raw")
+plot(chipVals(chipSet)[,1], chipVals(chipSet)[,2],
+     xlim=c(1,600), ylim=c(1,600), main="Quantile")
+@
+\end{center}
+\caption{Raw and quantile normalized ChIP-seq data.}
+\end{figure}
+\pagebreak
+
+
+\section{Data integration}
+In order to integrate both data types, a correlation score $Z$ (motivated by the work of \cite{Schaefer2012}) can be calculated by multiplying the standardized difference of gene expression values with the standardized difference of ChIP-seq values. Prior to this, pheno type information must be added to the \Robject{chipSet} object.
+<<label=integrateData>>=
+eSet$CEBPA
+sampleNames(chipSet)
+chipSet$CEBPA <- factor(c("wt", "ko"))
+pData(chipSet)
+
+intData <- integrateData(eSet, chipSet, 
+    factor="CEBPA", reference="wt")
+head(intData)
+@
+\pagebreak
+
+\section{Classification by mixture models}
+\subsection{Maximum likelihood approach}
+We now fit a mixture model to the correlation score $Z$. The model consists of two normal components with fixed $\mu=0$. These two components should capture $Z$ values close to zero, i.e. genes that show no differences between wild type and knock-out in at least one of the two data sets. The positive (negative) $Z$ scores are represented by a (mirrored) exponential component. Parameters are estimated using the EM-algorithm as implemented in the method \Rmethod{mlMixModel}.
+<<label=mlMixModel1,results=hide>>=
+mlmm = mlMixModel(intData[,"z"],
+    normNull=c(2, 3), expNeg=1, expPos=4, 
+    sdNormNullInit=c(0.5, 1), rateExpNegInit=0.5, rateExpPosInit=0.5,
+    pi=rep(1/4, 4))
+@
+<<label=mlMixModel2>>=
+mlmm
+@
+The method returns an object of class \Rclass{MixModelML}, a subclass of \Rclass{MixModel}. We now plot the model fit and the classification results:
+\begin{figure}[H]
+\begin{center}
+<<label=mlMixModelPlot,fig=TRUE,width=8,height=4>>=
+par(mfrow=c(1,2))
+plotComponents(mlmm, xlim=c(-2, 2), ylim=c(0, 3))
+plotClassification(mlmm)
+@
+\end{center}
+\caption{Model fit and classification results of the maximum likelihood approach.}
+\end{figure}
+%mm = mlMixModel(intData[,"z"], normNull=c(2,3), expNeg=1, expPos=4, sdNormNullInit=c(5, 6), rateExpNegInit=0.1, rateExpPosInit=0.1, pi=rep(1/4,4))
+
+\subsection{Bayesian approach}
+Alternatively, an Bayesian approach can be used.
+<<label=bayesMixModel1,results=hide>>=
+set.seed(1515)
+bayesmm = bayesMixModel(intData[,"z"],
+    normNull=c(2, 3), expNeg=1, expPos=4, 
+    sdNormNullInit=c(0.5, 1), rateExpNegInit=0.5, rateExpPosInit=0.5,
+    shapeNorm0=c(10, 10), scaleNorm0=c(10, 10), shapeExpNeg0=0.01,
+    scaleExpNeg0=0.01, shapeExpPos0=0.01, scaleExpPos0=0.01,
+    pi=rep(1/4, 4), itb=2000, nmc=8000, thin=5)
+@
+\Rmethod{bayesMixModel} returns an object of class \Rclass{MixModelBayes}, which is also a subclass of \Rclass{MixModel}.
+<<label=bayesMixModel2>>=
+bayesmm
+@
+The same methods for plotting the model fit and classification can be applied.
+\begin{figure}[H]
+\begin{center}
+<<label=bayesMixModelPlot,fig=TRUE,width=10,height=5>>=
+par(mfrow=c(1,2))
+plotComponents(bayesmm, xlim=c(-2, 2), ylim=c(0, 3))
+plotClassification(bayesmm, method="mode")
+@
+\end{center}
+\caption{Model fit and classification results of the Bayesian approach.}
+\end{figure}
+Note, that the parameters 'burn in' (\Rfunarg{itb}) and 'number of iterations' (\Rfunarg{nmc}) have to be choosen carefully. The method \Rmethod{plotChains} should be used to assess the convergence of the markov chains for each parameter. The settings here lead to a short runtime, but are unsuitable for real applications.\\
+
+Both models tend to classify more genes to the positive component (component 4) than to the negative one (component 1):
+<<label=compMixModels>>=
+table(classification(mlmm, method="maxDens"),
+      classification(bayesmm, method="mode"))
+@
+This is in line with the fact, that H3K4me3 occurs in the promoters of active genes. Since each $z$ corresponds to a probeset (and so to at least one transcript), the corresponding microarray annotation packages can be used to obtain e.g. the gene symbols of all positivly classified $z$ scores.
+<<label=annotation,eval=FALSE>>=
+posProbes <- rownames(intData)[classification(bayesmm, method="mode") == 4]
+library("mogene10sttranscriptcluster.db")
+unlist(mget(posProbes, mogene10sttranscriptclusterSYMBOL))
+@
+\pagebreak
+
+\begin{thebibliography}{}
+\bibitem[Anders and Huber, 2010]{Anders2010}
+S. Anders and W. Huber (2010) Differential expression analysis for sequence count data.
+\textit{Genome Biol.}, \textbf{11}(10), R106.
+
+\bibitem[Sch\"{a}fer {\it et~al}., 2012]{Schaefer2012}
+M. Sch\"{a}fer, O. Lkhagvasuren, H.-U. Klein \textit{et~al}. (2012) Integrative analyses for Omics data: A Bayesian mixture model to assess the concordance of ChIP-chip and ChIP-seq measurements.
+\textit{J Toxicol Environ Health A.}, \textbf{75}(8-10), 461--470.
+\end{thebibliography}
+
+\end{document}

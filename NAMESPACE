@@ -1,0 +1,48 @@
+import(methods)
+import(BiocGenerics)
+import(Biobase)
+import(IRanges)
+import(GenomicRanges)
+
+importClassesFrom(beadarray, ExpressionSetIllumina)
+
+exportClasses(
+    ChIPseqSet,
+    MixModel,
+    MixModelBayes,
+    MixModelML,
+    MixtureComponent
+)
+
+exportMethods(
+    # methods-MixModel.R
+    dim,
+    length,
+    show,
+    summary
+)
+
+export(
+    # methods-ChIPseqSet.R
+    chipVals, "chipVals<-",
+
+    # methods-MixModel.R
+    chains,
+    classification,
+    components,
+    convergence,
+    mmData,
+    listClassificationMethods,
+    weights,
+
+    # other methods from AllGenerics.R
+    bayesMixModel,
+    integrateData,
+    matchProbeToPromoter,
+    mlMixModel,
+    normalizeChIP,
+    plotChains,
+    plotClassification,
+    plotComponents,
+    summarizeReads
+)
