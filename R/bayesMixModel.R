@@ -200,32 +200,36 @@ for(m in 1:n){
     allocations_mode[m] <- calculateMode(alles)
 }
 
-
-values <- matrix(numeric(length(z)*k), nrow=k)
-if(nnorm > 0){ 
-    for(i in 1:nnorm){
-            values[i,] <- pi_mean[i]*dnorm(x=z, mean=0, sd=sigma_mean[i])
+values <- matrix(numeric(length(z) * k), nrow = k)
+    if (nnorm > 0) {
+        for (i in normNull) {
+            values[i, ] <- pi_mean[i] * dnorm(x = z, mean = 0,
+                sd = sigma_mean[reihenfolge_alles[i]])
+        }
     }
-}
-if(length(expNeg) > 0){
-      i <- expNeg
-      temp <- pi_mean[i]*dexp(x=-z, rate=1/mu_mean[i])
-      values[i,] <- temp[length(temp):1] 
-}
-if(length(expPos) > 0){
-      i <- expPos
-      values[i,] <- pi_mean[i]*dexp(x=z, rate=1/mu_mean[i])   
-}
-if(length(gamNeg) > 0){
-      i <- gamNeg
-      temp <- pi_mean[i]*dgamma(x=-z, shape=shapeGam_mean[i-max(c(0,expPos,expNeg,normNull))], scale=scaleGam_mean[i-max(c(0,expPos,expNeg,normNull))])
-      values[i,] <- temp[length(temp):1]
-}
-if(length(gamPos) > 0){
-      i <- gamPos
-      values[i,] <- pi_mean[i]*dgamma(x=z, shape=shapeGam_mean[i-max(c(0,expPos,expNeg,normNull,gamNeg))], scale=scaleGam_mean[i-max(c(0,expPos,expNeg,normNull,gamNeg))])
-}      
-allocations_max_dens <- unlist(apply(values,2,function(x){which(x == max(x))}))
+    if (length(expNeg) > 0) {
+        i <- expNeg
+        values[i, ] <- pi_mean[i] * dexp(x = -z, rate = 1/mu_mean[i])
+    }
+    if (length(expPos) > 0) {
+        i <- expPos
+        values[i, ] <- pi_mean[i] * dexp(x = z, rate = 1/mu_mean[i])
+    }
+    if (length(gamNeg) > 0) {
+        i <- gamNeg
+        values[i, ] <- pi_mean[i] * dgamma(x = -z, shape = shapeGam_mean[i -
+            max(c(0, expPos, expNeg, normNull))], scale = scaleGam_mean[i -
+            max(c(0, expPos, expNeg, normNull))])
+    }
+    if (length(gamPos) > 0) {
+        i <- gamPos
+        values[i, ] <- pi_mean[i] * dgamma(x = z, shape = shapeGam_mean[i -
+            max(c(0, expPos, expNeg, normNull, gamNeg))], scale = scaleGam_mean[i -
+            max(c(0, expPos, expNeg, normNull, gamNeg))])
+    }
+    allocations_max_dens <- unlist(apply(values, 2, function(x) {
+        which(x == max(x))
+    }))
 
 # construct lists with components parameters
 compsInit = list()
@@ -349,7 +353,7 @@ if(ngamma > 0){
 }
 
 #results
-results_classification <- list(maxDens=allocations_max_dens, median=allocations_median, mode=allocations_mode)
+results_classification <- list(mode=allocations_mode, median=allocations_median, maxDens=allocations_max_dens)
 
 mm <- new("MixModelBayes",
           mmData=z,
