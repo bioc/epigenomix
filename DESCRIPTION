@@ -2,7 +2,7 @@ Package: epigenomix
 Type: Package
 Title: Epigenetic and gene expression data normalization and
         integration with mixture models
-Version: 1.0.0
+Version: 1.1.0
 Date: 2013-03-13
 Author: Hans-Ulrich Klein, Martin Schaefer
 Maintainer: Hans-Ulrich Klein <h.klein@uni-muenster.de>
