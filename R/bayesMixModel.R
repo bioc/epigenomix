@@ -83,10 +83,10 @@ Pi <- piInit
 Pi <- Pi/sum(Pi); zdp <- classificationsInit
 
 ##### Initialisierung der Ketten #####
-S.pi <- matrix(numeric(ceiling(nmc/thin)*k),ncol=k); S.mu <- matrix(numeric(ceiling(nmc/thin)*k),ncol=k); S.sigma <- matrix(numeric(ceiling(nmc/thin)*nnorm),ncol=nnorm); S.zdp <- matrix(numeric(n*k),ncol=k)
-S.alphadir <- numeric(ceiling(nmc/thin));
+S.pi <- matrix(rep(NA,ceiling(nmc/thin)*k),ncol=k); S.mu <- matrix(rep(NA,ceiling(nmc/thin)*k),ncol=k); S.sigma <- matrix(rep(NA,ceiling(nmc/thin)*nnorm),ncol=nnorm); S.zdp <- matrix(numeric(n*k),ncol=k)
+S.alphadir <- rep(NA,ceiling(nmc/thin));
 if(ngamma > 0){
-    S.shapeGam <- matrix(numeric(ceiling(nmc/thin)*ngamma),ncol=ngamma); S.scaleGam <- matrix(numeric(ceiling(nmc/thin)*ngamma),ncol=ngamma); S.acceptanceProb <- matrix(numeric(ceiling(nmc/thin)*ngamma),ncol=ngamma)
+    S.shapeGam <- matrix(rep(NA,ceiling(nmc/thin)*ngamma),ncol=ngamma); S.scaleGam <- matrix(rep(NA,ceiling(nmc/thin)*ngamma),ncol=ngamma); S.acceptanceProb <- matrix(rep(NA,ceiling(nmc/thin)*ngamma),ncol=ngamma)
 }
 #Initial sampling fuer DP-Mischung
 PiV <- .sampleMixture(k,zdp,dirichletParInit)
@@ -151,26 +151,26 @@ expPos <- which(reihenfolge_alles %in% expPos)
 gamPos <- which(reihenfolge_alles %in% gamPos)
 
 if(average=="mean"){
-mu_mean <- apply(S.mu,2,function(x){mean(x[x!=0])})
-sigma_mean <- apply(S.sigma,2,function(x){mean(x[x!=0])})
+mu_mean <- apply(S.mu,2,function(x){mean(x[!is.na(x)])})
+sigma_mean <- apply(S.sigma,2,function(x){mean(x[!is.na(x)])})
 if(ngamma > 0){
-    shapeGam_mean <- apply(S.shapeGam,2,function(x){mean(x[x!=0])})
-    scaleGam_mean <- apply(S.scaleGam,2,function(x){mean(x[x!=0])})
-    acceptanceProb_mean <- apply(S.acceptanceProb,2,function(x){mean(x[x!=0])})
+    shapeGam_mean <- apply(S.shapeGam,2,function(x){mean(x[!is.na(x)])})
+    scaleGam_mean <- apply(S.scaleGam,2,function(x){mean(x[!is.na(x)])})
+    acceptanceProb_mean <- apply(S.acceptanceProb,2,function(x){mean(x[!is.na(x)])})
 }
-pi_mean <- apply(S.pi,2,function(x){mean(x[x!=0])})
-alphadir_mean <- mean(S.alphadir[S.alphadir != 0])
+pi_mean <- apply(S.pi,2,function(x){mean(x[!is.na(x)])})
+alphadir_mean <- mean(S.alphadir[!is.na(S.alphadir)])
 }
 if(average=="median"){
-mu_mean <- apply(S.mu,2,function(x){median(x[x!=0])})
-sigma_mean <- apply(S.sigma,2,function(x){median(x[x!=0])})
+mu_mean <- apply(S.mu,2,function(x){median(x[!is.na(x)])})
+sigma_mean <- apply(S.sigma,2,function(x){median(x[!is.na(x)])})
 if(ngamma > 0){
-    shapeGam_mean <- apply(S.shapeGam,2,function(x){median(x[x!=0])})
-    scaleGam_mean <- apply(S.scaleGam,2,function(x){median(x[x!=0])})
-    acceptanceProb_mean <- apply(S.acceptanceProb,2,function(x){median(x[x!=0])})
+    shapeGam_mean <- apply(S.shapeGam,2,function(x){median(x[!is.na(x)])})
+    scaleGam_mean <- apply(S.scaleGam,2,function(x){median(x[!is.na(x)])})
+    acceptanceProb_mean <- apply(S.acceptanceProb,2,function(x){median(x[!is.na(x)])})
 }
-pi_mean <- apply(S.pi,2,function(x){median(x[x!=0])})
-alphadir_mean <- median(S.alphadir[S.alphadir != 0])
+pi_mean <- apply(S.pi,2,function(x){median(x[!is.na(x)])})
+alphadir_mean <- median(S.alphadir[!is.na(S.alphadir)])
 }
 
 calculateMode <- function(x){
