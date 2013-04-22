@@ -77,7 +77,7 @@
     main <- character()
     for (i in component) {
       for (j in chain) {
-        data <- cbind(chains(object)$components[[i]][[j]], data)
+        data <- cbind(data, chains(object)$components[[i]][[j]])
         main <- c(main, paste(j, " - component ", i, sep=""))
         ylab <- c(ylab, "Value")
         xlab <- c(xlab, "Iteration")
