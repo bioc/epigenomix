@@ -33,9 +33,9 @@
     yComps[i, ] <- weights(object)[i] * do.call(components(object)[[i]]@pdf, c(list(x=xp), components(object)[[i]]@parameters))
     myCols[i] <- components(object)[[i]]@color
     # for some distributions, it looks better to not plot beyond 0 
-    if (components(object)[[i]]@name == "ExpNeg" | components(object)[[i]]@name == "GammaNeg") {
+    if (components(object)[[i]]@name == "ExpNeg" | components(object)[[i]]@name == "GamNeg") {
       yComps[i, xp > 0] <- NA
-    } else if (components(object)[[i]]@name == "ExpPos" | components(object)[[i]]@name == "GammaPos") {
+    } else if (components(object)[[i]]@name == "ExpPos" | components(object)[[i]]@name == "GamPos") {
       yComps[i, xp < 0] <- NA
     }
   }
@@ -93,7 +93,7 @@
   lines(xp, yMix, col=myCols[1]) # plot mixture density
   # plot null components first, then neg. and pos. components
   indFirst <- which(!is.element(sapply(components(object), function(x) {return(x@name)}),
-                                c("ExpNeg", "ExpPos", "GammaNeg", "GammaPos")))
+                                c("ExpNeg", "ExpPos", "GamNeg", "GamPos")))
   indSecond <- setdiff(1:length(components(object)), indFirst)
   for (i in indFirst) {   # plot null components
     lines(xp, yComps[i, ], col=myCols[1+i])

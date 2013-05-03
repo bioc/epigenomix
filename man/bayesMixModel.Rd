@@ -177,14 +177,19 @@ mm
 plotComponents(mm)
 plotChains(mm, chain="pi")
 
-z <- c(rnorm(1000, 0, 3), rnorm(1000, 0, 5), rexp(1000, 5), -rexp(1000, 5))
-mm <- bayesMixModel(z, normNull=1:2, expNeg=3, expPos=4,
-  sdNormNullInit=c(1, 2), rateExpNegInit=8, rateExpPosInit=8,
-  shapeNorm0=c(1, 1), scaleNorm0=c(1, 1),
-  shapeExpNeg0=c(1, 1), scaleExpNeg0=c(1, 1),
-  shapeExpPos0=c(1, 1), scaleExpPos0=c(1, 1),
-  itb=100, nmc=500, thin=10)
-mm
-plotComponents(mm)
-plotChains(mm, chain="pi")
+#z <- c(rnorm(1000, 0, 3), rnorm(1000, 0, 5), rexp(1000, 5), -rexp(1000, 5))
+#mm <- bayesMixModel(z, normNull=1:2, expNeg=3, expPos=4, gamNeg=5, gamPos=6,
+#  sdNormNullInit=c(1, 2), rateExpNegInit=8, rateExpPosInit=8,
+#  shapeGamNegInit=1, scaleGamNegInit=1, shapeGamPosInit=1, scaleGamPosInit=1,
+#  shapeNorm0=c(1, 1), scaleNorm0=c(1, 1),
+#  shapeExpNeg0=c(1, 1), scaleExpNeg0=c(1, 1),
+#  shapeExpPos0=c(1, 1), scaleExpPos0=c(1, 1),
+#  shapeGamNegAlpha0=1, shapeGamNegBeta0=1,
+#  scaleGamNegAlpha0=1, scaleGamNegBeta0=1,
+#  shapeGamPosAlpha0=1, shapeGamPosBeta0=1,
+#  scaleGamPosAlpha0=1, scaleGamPosBeta0=1,
+#  itb=100, nmc=500, thin=10)
+#mm
+#plotComponents(mm)
+#plotChains(mm, chain="pi")
 }

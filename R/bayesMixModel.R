@@ -27,7 +27,7 @@ if (missing(gammaShapeGrid)) {
   if (ngamma == 0) {
     gammaShapeGrid <- NULL
   } else {
-    gammaShapeGrid <- seq(0,max(1e+03*max(z),1e+04),1e-02)
+    gammaShapeGrid <- seq(1e-10,max(1e+03*max(z),1e+04),1e-02)
   }
 }
 
@@ -84,9 +84,14 @@ Pi <- Pi/sum(Pi); zdp <- classificationsInit
 
 ##### Initialisierung der Ketten #####
 S.pi <- matrix(rep(NA,ceiling(nmc/thin)*k),ncol=k); S.mu <- matrix(rep(NA,ceiling(nmc/thin)*k),ncol=k); S.sigma <- matrix(rep(NA,ceiling(nmc/thin)*nnorm),ncol=nnorm); S.zdp <- matrix(numeric(n*k),ncol=k)
-S.alphadir <- rep(NA,ceiling(nmc/thin));
+S.shapeNorm <- matrix(rep(NA,ceiling(nmc/thin)*nnorm),ncol=nnorm); S.scaleNorm <- matrix(rep(NA,ceiling(nmc/thin)*nnorm),ncol=nnorm);
+S.alphadir <- rep(NA,ceiling(nmc/thin)); S.allocs <- matrix(rep(NA,ceiling(nmc/thin)*k),ncol=k);
+if(nexp > 0){
+     S.shapeExp <- matrix(rep(NA,ceiling(nmc/thin)*nexp),ncol=nexp); S.scaleExp <- matrix(rep(NA,ceiling(nmc/thin)*nexp),ncol=nexp);
+}
 if(ngamma > 0){
     S.shapeGam <- matrix(rep(NA,ceiling(nmc/thin)*ngamma),ncol=ngamma); S.scaleGam <- matrix(rep(NA,ceiling(nmc/thin)*ngamma),ncol=ngamma); S.acceptanceProb <- matrix(rep(NA,ceiling(nmc/thin)*ngamma),ncol=ngamma)
+    S.scaleGamAlpha <- matrix(rep(NA,ceiling(nmc/thin)*ngamma),ncol=ngamma); S.scaleGamBeta <- matrix(rep(NA,ceiling(nmc/thin)*ngamma),ncol=ngamma);
 }
 #Initial sampling fuer DP-Mischung
 PiV <- .sampleMixture(k,zdp,dirichletParInit)
@@ -100,6 +105,12 @@ alphadir <- dirichletParInit
         ################ update Theta ################
         #Allokationsvariable zdp sampeln
         zdp <- .sampleAllocations(z,n,k,mu,Sigma,shapeGam,scaleGam,Pi,normNull,expNeg,expPos,gamNeg,gamPos)
+        allocs <- numeric(k)
+        allocs_sparse <- table(zdp)
+        dabei <- as.numeric(dimnames(allocs_sparse)$zdp)
+        for(l in 1:length(dabei)){
+           allocs[dabei[l]] <- allocs_sparse[l]    
+        }
         #v <- unique(zdp); c <- hist(zdp,v);
     
         #Stick-Breaking construction fuer Dirichlet-Prozess sampeln;
@@ -114,6 +125,16 @@ alphadir <- dirichletParInit
         shapeGam <- muSigma$shapeGam
         scaleGam <- muSigma$scaleGam
         acceptanceProb <- muSigma$acceptanceProb
+        shapeNorm <- muSigma$shapeNorm
+        scaleNorm <- muSigma$scaleNorm
+        shapeExpNeg <- muSigma$shapeExpNeg
+        scaleExpNeg <- muSigma$scaleExpNeg
+        shapeExpPos <- muSigma$shapeExpPos
+        scaleExpPos <- muSigma$scaleExpPos
+        scaleGamNegAlpha <- muSigma$scaleGamNegAlpha
+        scaleGamNegBeta <- muSigma$scaleGamNegBeta
+        scaleGamPosAlpha <- muSigma$scaleGamPosAlpha
+        scaleGamPosBeta <- muSigma$scaleGamPosBeta
                
         #Parameter des Dirichlezprozesses sampeln
         alphadir <- rgamma(n=1,shape=shapeDir+k-1,scale=1/(scaleDir-sum(log(1-V[1:(k-1)]))))
@@ -124,10 +145,19 @@ alphadir <- dirichletParInit
                 S.pi[ind,] <- Pi
                 S.mu[ind,] <- mu
                 S.sigma[ind,] <- Sigma
+                S.shapeNorm[ind,] <- shapeNorm
+                S.scaleNorm[ind,] <- scaleNorm
+                S.allocs[ind,] <- allocs
+                if(nexp > 0){
+                    S.shapeExp[ind,] <- c(shapeExpNeg, shapeExpPos)
+                    S.scaleExp[ind,] <- c(scaleExpNeg, scaleExpPos)
+                }
                 if(ngamma > 0){
                     S.shapeGam[ind,] <- shapeGam
                     S.scaleGam[ind,] <- scaleGam
                     S.acceptanceProb[ind,] <- acceptanceProb
+                    S.scaleGamAlpha[ind,] <- c(scaleGamNegAlpha,scaleGamPosAlpha)
+                    S.scaleGamBeta[ind,] <- c(scaleGamNegBeta,scaleGamPosBeta)
                 }
                 S.alphadir[ind] <- alphadir
                 for(j in 1:k){
@@ -256,14 +286,14 @@ for (ind in expPos) {
 }
 for (ind in gamNeg) {
   compsInit[[ind]] = new("MixtureComponent",
-             name="GammaNeg",
+             name="GamNeg",
              parameters=list(shape=shapeGamNegInit[ind==gamNeg], scale=scaleGamNegInit[ind==gamNeg]),
              pdf=function(x, shape, scale) { dgamma(-x, shape=shape, scale=scale) },
              color="purple")
 }
 for (ind in gamPos) {
     compsInit[[ind]] = new("MixtureComponent",
-             name="GammaPos",
+             name="GamPos",
              parameters=list(shape=shapeGamPosInit[ind==gamPos], scale=scaleGamPosInit[ind==gamPos]),
              pdf=dgamma,
              color="cyan")
@@ -280,10 +310,10 @@ for (ind in expPos) {
     components_priors[[ind]] = list(name="ExpPos", shape=shapeExpPos0[ind==expPos], scale=shapeExpPos0[ind==expPos])
 }
 for (ind in gamNeg) {
-    components_priors[[ind]] = list(name="GammaNeg", shapeAlpha=shapeGamNegAlpha0[ind==gamNeg], shapeBeta=shapeGamNegBeta0[ind==gamNeg], scaleAlpha=scaleGamNegAlpha0[ind==gamNeg], scaleBeta=scaleGamNegBeta0[ind==gamNeg])
+    components_priors[[ind]] = list(name="GamNeg", shapeAlpha=shapeGamNegAlpha0[ind==gamNeg], shapeBeta=shapeGamNegBeta0[ind==gamNeg], scaleAlpha=scaleGamNegAlpha0[ind==gamNeg], scaleBeta=scaleGamNegBeta0[ind==gamNeg])
 }
 for (ind in gamPos) {
-    components_priors[[ind]] = list(name="GammaPos", shapeAlpha=shapeGamPosAlpha0[ind==gamPos], shapeBeta=shapeGamPosBeta0[ind==gamPos], scaleAlpha=scaleGamPosAlpha0[ind==gamPos], scaleBeta=scaleGamPosBeta0[ind==gamPos])
+    components_priors[[ind]] = list(name="GamPos", shapeAlpha=shapeGamPosAlpha0[ind==gamPos], shapeBeta=shapeGamPosBeta0[ind==gamPos], scaleAlpha=scaleGamPosAlpha0[ind==gamPos], scaleBeta=scaleGamPosBeta0[ind==gamPos])
 }
 
 compsResults = list()
@@ -310,37 +340,34 @@ for (ind in expPos) {
 }
 for (ind in gamNeg) {
   compsResults[[ind]] = new("MixtureComponent",
-                name="GammaNeg",
-                parameters=list(shape=shapeGam_mean[ind==c(gamNeg, gamPos)], scale=scaleGam_mean[ind==c(gamNeg, gamPos)]),
+                name="GamNeg",
+                parameters=list(shape=shapeGam_mean[ind==c(gamNeg, gamPos)], shapeAcceptanceProbability=acceptanceProb_mean[ind==c(gamNeg, gamPos)], scale=scaleGam_mean[ind==c(gamNeg, gamPos)]),
                 pdf=function(x, shape, scale) { dgamma(-x, shape=shape, scale=scale) },
                 color="purple")
-                ## acceptance_probability=acceptanceProb_mean[ind==c(gamNeg, gamPos)]
 }
 for (ind in gamPos) {
   compsResults[[ind]] = new("MixtureComponent",
-                name="GammaPos",
-                parameters=list(shape=shapeGam_mean[ind==c(gamNeg, gamPos)], scale=scaleGam_mean[ind==c(gamNeg, gamPos)]),
+                name="GamPos",
+                parameters=list(shape=shapeGam_mean[ind==c(gamNeg, gamPos)], shapeAcceptanceProbability=acceptanceProb_mean[ind==c(gamNeg, gamPos)], scale=scaleGam_mean[ind==c(gamNeg, gamPos)]),
                 pdf=dgamma,
-                color="cyan")
-                ###acceptance_probability=acceptanceProb_mean[ind==c(gamNeg, gamPos)])
+                color="orange")
 }
 
 compsChains = list()
 for (ind in normNull) {
-    compsChains[[ind]] = list(name="NormNull", sd=S.sigma[,ind==normNull])
+    compsChains[[ind]] = list(name="NormNull", sd=S.sigma[,ind==normNull], precision.shape=S.shapeNorm[,ind==normNull], precision.scale=S.shapeNorm[,ind==normNull])
 }
 for (ind in expNeg) {
-    compsChains[[ind]] = list(name="ExpNeg", rate=1/S.mu[,ind])
+    compsChains[[ind]] = list(name="ExpNeg", rate=1/S.mu[,ind], rate.shape=S.shapeExp[,ind==c(expNeg, expPos)], rate.scale=S.scaleExp[,ind==c(expNeg, expPos)])
 }
 for (ind in expPos) {
-    compsChains[[ind]] = list(name="ExpPos", rate=1/S.mu[,ind])
+    compsChains[[ind]] = list(name="ExpPos", rate=1/S.mu[,ind], rate.shape=S.shapeExp[,ind==c(expNeg, expPos)], rate.scale=S.scaleExp[,ind==c(expNeg, expPos)])
 }
 for (ind in gamNeg) {
-    compsChains[[ind]] = list(name="GammaNeg", shape=S.shapeGam[,ind==c(gamNeg, gamPos)], scale=S.scaleGam[,ind==c(gamNeg, gamPos)])
-    # acceptance_probability=S.acceptanceProb[,ind==c(gamNeg, gamPos)]
+    compsChains[[ind]] = list(name="GamNeg", shape=S.shapeGam[,ind==c(gamNeg, gamPos)], scale=S.scaleGam[,ind==c(gamNeg, gamPos)], scale.shape=S.scaleGamAlpha[,ind==c(gamNeg, gamPos)], scale.scale=S.scaleGamBeta[,ind==c(gamNeg, gamPos)], shape.acceptance_probability=S.acceptanceProb[,ind==c(gamNeg, gamPos)])
 }
 for (ind in gamPos) {
-    compsChains[[ind]] = list(name="GammaPos", shape=S.shapeGam[,ind==c(gamNeg, gamPos)], scale=S.scaleGam[,ind==c(gamNeg, gamPos)])    # acceptance_probability=S.acceptanceProb[,ind==c(gamNeg, gamPos)]
+    compsChains[[ind]] = list(name="GamPos", shape=S.shapeGam[,ind==c(gamNeg, gamPos)], scale=S.scaleGam[,ind==c(gamNeg, gamPos)], scale.shape=S.scaleGamAlpha[,ind==c(gamNeg, gamPos)], scale.scale=S.scaleGamBeta[,ind==c(gamNeg, gamPos)], shape.acceptance_probability=S.acceptanceProb[,ind==c(gamNeg, gamPos)])
 }
 
 #configuration
@@ -359,7 +386,7 @@ mm <- new("MixModelBayes",
           mmData=z,
           configuration=list(inits=configuration_inits, priors=configuration_priors, chains=configuration_chains),
           results=list(components=compsResults, pi=pi_mean, classification=results_classification),
-          chains=list(components=compsChains,pi=S.pi,dirichletParameter=S.alphadir,classification=S.zdp))
+          chains=list(components=compsChains,pi=S.pi,dirichletParameter=S.alphadir,classification=S.zdp,allocations=S.allocs))
 
 #RVAL <- list(data=z, configuration=list(inits=configuration_inits,priors=configuration_priors,chains=configuration_chains), results=list(components=compsResults,pi=pi_mean,classification=results_classification), chains = list(components=compsChains,pi=S.pi,dirichletParameter=S.alphadir,classification=S.zdp))
 
@@ -420,25 +447,25 @@ return(mm)
 .sampleComponentParameters <- function(x,k,nnorm,ngamma,zdp,normNull,expNeg,expPos,gamNeg,gamPos,shapeNorm0,scaleNorm0,shapeExpNeg0,scaleExpNeg0,shapeExpPos0,scaleExpPos0,shapeGamNegAlpha0,shapeGamNegBeta0,scaleGamNegAlpha0,scaleGamNegBeta0,shapeGamPosAlpha0,shapeGamPosBeta0,scaleGamPosAlpha0,scaleGamPosBeta0,shapeGam,scaleGam,gammaProposalFactor,gammaShapeGrid){
 
   # Speicherobjekte initialisieren
-  mu    <- numeric(k)
-  Sigma <- numeric(nnorm)
-  shapeNorm <- numeric(nnorm)
-  scaleNorm <- numeric(nnorm)
+  mu    <- rep(NA,k)
+  Sigma <- rep(NA,nnorm)
+  shapeNorm <- rep(NA,nnorm)
+  scaleNorm <- rep(NA,nnorm)
 
-  shapeExpNeg <- numeric(length(expNeg))
-  scaleExpNeg <- numeric(length(expNeg))
-  shapeExpPos <- numeric(length(expPos))
-  scaleExpPos <- numeric(length(expPos))
+  shapeExpNeg <- rep(NA,length(expNeg))
+  scaleExpNeg <- rep(NA,length(expNeg))
+  shapeExpPos <- rep(NA,length(expPos))
+  scaleExpPos <- rep(NA,length(expPos))
 
-  acceptanceProb <- numeric(ngamma)
-  shapeGamNegAlpha <- numeric(length(gamNeg))
-  shapeGamNegBeta  <- numeric(length(gamNeg))
-  scaleGamNegAlpha <- numeric(length(gamNeg))
-  scaleGamNegBeta  <- numeric(length(gamNeg))
-  shapeGamPosAlpha <- numeric(length(gamPos))
-  shapeGamPosBeta  <- numeric(length(gamPos))
-  scaleGamPosAlpha <- numeric(length(gamPos))
-  scaleGamPosBeta  <- numeric(length(gamPos))
+  acceptanceProb <- rep(NA,ngamma)
+  shapeGamNegAlpha <- rep(NA,length(gamNeg))
+  shapeGamNegBeta  <- rep(NA,length(gamNeg))
+  scaleGamNegAlpha <- rep(NA,length(gamNeg))
+  scaleGamNegBeta  <- rep(NA,length(gamNeg))
+  shapeGamPosAlpha <- rep(NA,length(gamPos))
+  shapeGamPosBeta  <- rep(NA,length(gamPos))
+  scaleGamPosAlpha <- rep(NA,length(gamPos))
+  scaleGamPosBeta  <- rep(NA,length(gamPos))
 
   for(j in 1:k){
     i <- which(zdp==j); nj <- length(i)
@@ -461,33 +488,33 @@ return(mm)
         # Updates fuer Exponentialverteilung fuer negative Werte
         shapeExpNeg[j-max(normNull)] <- shapeExpNeg0[j-max(normNull)] + nj
         scaleExpNeg[j-max(normNull)] <- scaleExpNeg0[j-max(normNull)]/(1 + scaleExpNeg0[j-max(normNull)]*xsum)
-        } else if(length(intersect(j, expPos)) == 1){
-          # Einschraenkung auf positive Werte
-          werte <- x[i]
-          ueber_null_ind <- which(werte > 0)
-          xsum <- sum(werte[ueber_null_ind])
-          # Updates
-          shapeExpPos[j-max(expNeg)] <- shapeExpPos0[j-max(expNeg)] + nj
-          scaleExpPos[j-max(expNeg)] <- scaleExpPos0[j-max(expNeg)]/(1 + scaleExpPos0[j-max(expNeg)]*xsum)
-        } else if(length(intersect(j, gamNeg)) == 1){
-          # Einschraenkung auf negative Werte
-          werte <- x[i]
-          unter_null_ind <- which(werte < 0)
-          S_neg <- round(sum(abs(werte[unter_null_ind])),digits=22)
-          P_neg <- round(prod(abs(werte[unter_null_ind])),digits=22)
-          # Updates
-          scaleGamNegAlpha[j-max(c(0,expPos,expNeg,normNull))] <- shapeGam[j-max(c(0,expPos,expNeg,normNull))]*nj + scaleGamNegAlpha0[j-max(c(0,expPos,expNeg,normNull))]
-          scaleGamNegBeta[j-max(c(0,expPos,expNeg,normNull))] <- scaleGamNegBeta0[j-max(c(0,expPos,expNeg,normNull))]/(1 + scaleGamNegBeta0[j-max(c(0,expPos,expNeg,normNull))]*S_neg)
-        } else if(length(intersect(j, gamPos)) == 1){
-          # Einschraenkung auf positive Werte
-          werte <- x[i]
-          ueber_null_ind <- which(werte > 0)
-          S_pos <- round(sum(werte[ueber_null_ind]),digits=22)
-          P_pos <- round(prod(werte[ueber_null_ind]),digits=22)
-          # Updates
-          scaleGamPosAlpha[j-max(c(0,expPos,expNeg,normNull,gamNeg))] <- shapeGam[j-max(c(0,expPos,expNeg,normNull))]*nj + scaleGamPosAlpha0[j-max(c(0,expPos,expNeg,normNull,gamNeg))]
-          scaleGamPosBeta[j-max(c(0,expPos,expNeg,normNull,gamNeg))] <- scaleGamPosBeta0[j-max(c(0,expPos,expNeg,normNull,gamNeg))]/(1 + scaleGamPosBeta0[j-max(c(0,expPos,expNeg,normNull,gamNeg))]*S_pos)
-        }
+      } else if(length(intersect(j, expPos)) == 1){
+        # Einschraenkung auf positive Werte
+        werte <- x[i]
+        ueber_null_ind <- which(werte > 0)
+        xsum <- sum(werte[ueber_null_ind])
+        # Updates
+        shapeExpPos[j-max(expNeg)] <- shapeExpPos0[j-max(expNeg)] + nj
+        scaleExpPos[j-max(expNeg)] <- scaleExpPos0[j-max(expNeg)]/(1 + scaleExpPos0[j-max(expNeg)]*xsum)
+      } else if(length(intersect(j, gamNeg)) == 1){
+        # Einschraenkung auf negative Werte
+        werte <- x[i]
+        unter_null_ind <- which(werte < 0)
+        S_neg <- round(sum(abs(werte[unter_null_ind])),digits=22)
+        P_neg <- round(prod(abs(werte[unter_null_ind])),digits=22)
+        # Updates
+        scaleGamNegAlpha[j-max(c(0,expPos,expNeg,normNull))] <- shapeGam[j-max(c(0,expPos,expNeg,normNull))]*nj + scaleGamNegAlpha0[j-max(c(0,expPos,expNeg,normNull))]
+        scaleGamNegBeta[j-max(c(0,expPos,expNeg,normNull))] <- scaleGamNegBeta0[j-max(c(0,expPos,expNeg,normNull))]/(1 + scaleGamNegBeta0[j-max(c(0,expPos,expNeg,normNull))]*S_neg)
+      } else if(length(intersect(j, gamPos)) == 1){
+        # Einschraenkung auf positive Werte
+        werte <- x[i]
+        ueber_null_ind <- which(werte > 0)
+        S_pos <- round(sum(werte[ueber_null_ind]),digits=22)
+        P_pos <- round(prod(werte[ueber_null_ind]),digits=22)
+        # Updates
+        scaleGamPosAlpha[j-max(c(0,expPos,expNeg,normNull,gamNeg))] <- shapeGam[j-max(c(0,expPos,expNeg,normNull))]*nj + scaleGamPosAlpha0[j-max(c(0,expPos,expNeg,normNull,gamNeg))]
+        scaleGamPosBeta[j-max(c(0,expPos,expNeg,normNull,gamNeg))] <- scaleGamPosBeta0[j-max(c(0,expPos,expNeg,normNull,gamNeg))]/(1 + scaleGamPosBeta0[j-max(c(0,expPos,expNeg,normNull,gamNeg))]*S_pos)
+      }
         
       # anschliessend Ziehen aus den upgedateten Verteilungen
       if(length(intersect(j, normNull)) == 1){
@@ -503,13 +530,13 @@ return(mm)
       } else if( length(intersect(j, gamNeg)) == 1){
         # Ziehen von Werten aus Gammaverteilungen fuer positive Werte
         scaleGam[j-max(c(0,expPos,expNeg,normNull))] <- 1/rgamma(n=1,shape=scaleGamNegAlpha[j-max(c(0,expPos,expNeg,normNull))],scale=scaleGamNegBeta[j-max(c(0,expPos,expNeg,normNull))])
-        saSh <- .sampleShape(alpha_alt=shapeGam[j-max(c(0,expPos,expNeg,normNull))],beta_r=scaleGam[j-max(c(0,expPos,expNeg,normNull))],n=nj,a=scaleGamNegAlpha[j-max(c(0,expPos,expNeg,normNull))],b=scaleGamNegBeta[j-max(c(0,expPos,expNeg,normNull))],P=P_neg,werte=abs(werte[unter_null_ind]),gammaProposalFactor=gammaProposalFactor,gammaShapeGrid=gammaShapeGrid)
+        saSh <- .sampleShape(alpha_alt=shapeGam[j-max(c(0,expPos,expNeg,normNull))],beta_r=scaleGam[j-max(c(0,expPos,expNeg,normNull))],n=nj,a=shapeGamNegAlpha0[j-max(c(0,expPos,expNeg,normNull))],b=shapeGamNegBeta0[j-max(c(0,expPos,expNeg,normNull))],P=P_neg,werte=abs(werte[unter_null_ind]),gammaProposalFactor=gammaProposalFactor,gammaShapeGrid=gammaShapeGrid)
         shapeGam[j-max(c(0,expPos,expNeg,normNull))] <- saSh$alpha_new
         acceptanceProb[j-max(c(0,expPos,expNeg,normNull))] <- saSh$alpha_accept
       } else if(length(intersect(j, gamPos)) == 1){
         # Ziehen von Werten aus Gammaverteilungen fuer positive Werte
         scaleGam[j-max(c(0,expPos,expNeg,normNull))] <- 1/rgamma(n=1,shape=scaleGamPosAlpha[j-max(c(0,expPos,expNeg,normNull,gamNeg))],scale=scaleGamPosBeta[j-max(c(0,expPos,expNeg,normNull,gamNeg))])
-        saSh <- .sampleShape(alpha_alt=shapeGam[j-max(c(0,expPos,expNeg,normNull))],beta_r=scaleGam[j-max(c(0,expPos,expNeg,normNull))],n=nj,a=scaleGamPosAlpha[j-max(c(0,expPos,expNeg,normNull,gamNeg))],b=scaleGamPosBeta[j-max(c(0,expPos,expNeg,normNull,gamNeg))],P=P_pos,werte=werte[ueber_null_ind],gammaProposalFactor=gammaProposalFactor,gammaShapeGrid=gammaShapeGrid)
+        saSh <- .sampleShape(alpha_alt=shapeGam[j-max(c(0,expPos,expNeg,normNull))],beta_r=scaleGam[j-max(c(0,expPos,expNeg,normNull))],n=nj,a=shapeGamPosAlpha0[j-max(c(0,expPos,expNeg,normNull,gamNeg))],b=shapeGamPosBeta0[j-max(c(0,expPos,expNeg,normNull,gamNeg))],P=P_pos,werte=werte[ueber_null_ind],gammaProposalFactor=gammaProposalFactor,gammaShapeGrid=gammaShapeGrid)
         shapeGam[j-max(c(0,expPos,expNeg,normNull))] <- saSh$alpha_new
         acceptanceProb[j-max(c(0,expPos,expNeg,normNull))] <- saSh$alpha_accept
       }
@@ -538,7 +565,7 @@ return(mm)
       }    
     }    
   }
-  RVAL <- list(mu=mu,Sigma=Sigma,scaleGam=scaleGam,shapeGam=shapeGam,acceptanceProb=acceptanceProb)
+  RVAL <- list(mu=mu,Sigma=Sigma,scaleGam=scaleGam,shapeGam=shapeGam,acceptanceProb=acceptanceProb,shapeNorm=shapeNorm,scaleNorm=scaleNorm,shapeExpNeg=shapeExpNeg,scaleExpNeg=scaleExpNeg,shapeExpPos=shapeExpPos,scaleExpPos=scaleExpPos,scaleGamNegAlpha=scaleGamNegAlpha,scaleGamNegBeta=scaleGamNegBeta,scaleGamPosAlpha=scaleGamPosAlpha,scaleGamPosBeta=scaleGamPosBeta)
 
   return(RVAL)
 }
@@ -570,26 +597,26 @@ return(mm)
     y <- eins+zwei
     return(y)
   }
-  radien_prod_alt_log <- round(sum(log(pgamma(q=werte,shape=alpha_alt,scale=beta_r))),digits=22)
+  radien_prod_alt_log <- sum(log(pgamma(q=werte,shape=alpha_alt,scale=beta_r)))
 
     
   #2) Faktor alpha0
-  alpha_alt_prop_log <- round(log(pgamma(q=alpha_alt,shape=a,scale=b)),digits=22)
-  pi_X_log <- round(radien_prod_alt_log+alpha_alt_prop_log,digits=22)
+  alpha_alt_prop_log <- log(pgamma(q=alpha_alt,shape=a,scale=b))
+  pi_X_log <- radien_prod_alt_log+alpha_alt_prop_log
   ############################ Proposal q(Y|X) ############################
-  #results <- gamshapelogpost(gammaShapeGrid,beta_r,n,P)
-  #modus_ind <- which(results == max(results[is.na(results)==FALSE]))
+  results <- gamshapelogpost(gammaShapeGrid,beta_r,n,P)
+  modus_ind <- which(results == max(results[is.na(results)==FALSE]))
   #if(length(modus_ind) > 1){modus_ind <- sample(modus_ind,1)}
   #mu <- gammaShapeGrid[modus_ind]
-  digamma_mu <- mean(log(werte)) - log(beta_r)
-  differenz <- abs(digamma_mu - gammaShapeGrid)
-  modus_ind <- which(differenz == min(differenz[is.na(differenz)==FALSE]))
+  #digamma_mu <- mean(log(werte)) - log(beta_r)
+  #differenz <- abs(digamma_mu - gammaShapeGrid)
+  #modus_ind <- which(differenz == min(differenz[is.na(differenz)==FALSE]))
   if(length(modus_ind) > 1){modus_ind <- sample(modus_ind,1)}
   mu <- gammaShapeGrid[modus_ind]
 
   #breite <- gammaProposalFactor*(-1)/(-n*digamma(mu))
   #breite <- gammaProposalFactor*(-1)/(-n*psigamma(mu, deriv = 1))
-  sigma2 <- 2*(-1)/(-n*digamma(mu))
+  sigma2 <- gammaProposalFactor*(-1)/(-n*psigamma(mu, deriv=1))
 
   prop <- rnorm(n=1,mean=mu, sd=sqrt(sigma2))
   #prop <- runif(n=1,min=mu-breite,max=mu+breite)
@@ -602,10 +629,10 @@ return(mm)
   q_yx_log <- log(pnorm(q=alpha_neu_prop,mean=mu, sd=sqrt(sigma2)))
   ############### pi_Y #################
   #%1) Faktor Distanzen
-  radien_prod_neu_log <- round(sum(log(pgamma(q=werte,shape=alpha_neu_prop,scale=beta_r))),digits=22)
+  radien_prod_neu_log <- sum(log(pgamma(q=werte,shape=alpha_neu_prop,scale=beta_r)))
    
   #%2) Faktor alpha0
-  alpha_neu_prop_log <- round(log(pgamma(q=alpha_neu_prop,shape=a,scale=b)),digits=22)
+  alpha_neu_prop_log <- log(pgamma(q=alpha_neu_prop,shape=a,scale=b))
 
   pi_Y_log <- radien_prod_neu_log+alpha_neu_prop_log
   ######### Proposal q(X|Y) ############

@@ -6,7 +6,7 @@
   compNames <- sapply(chains(object)$components, function(x) {
                      x$name
                    })
-  validChains <- c("pi", "dirichletParameter", unique(unlist(compChains)))
+  validChains <- c("pi", "dirichletParameter", "allocations", unique(unlist(compChains)))
   validComponents <- 1:length(components(object))
 
   if (!missing(chain) && length(chain) > 1) {
@@ -70,6 +70,20 @@
     main <- "Dirichlet parameter"
     cols <- 1
     rows <- 1
+  } else if (chain[1] == "allocations") {
+    data <- chains(object)[["allocations"]]
+    ind <- seq(itb+1, nrow(data), thin)
+    data <- data[ind,,drop=FALSE]
+    ylab <- rep("Value", ncol(data))
+    xlab <- rep("Iteration", ncol(data))
+    main <- paste("allocations - component ", 1:ncol(data), sep="")
+    if (missing(cols)) {
+      cols <- 1
+      rows <- ncol(data)
+    } else {
+      cols <- min(ncol(data), cols)
+      rows <- ceiling(ncol(data)/cols)
+    }
   } else {
     data <- c()
     xlab <- character()
