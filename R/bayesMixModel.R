@@ -83,7 +83,7 @@ Pi <- piInit
 Pi <- Pi/sum(Pi); zdp <- classificationsInit
 
 ##### Initialisierung der Ketten #####
-S.pi <- matrix(rep(NA,ceiling(nmc/thin)*k),ncol=k); S.mu <- matrix(rep(NA,ceiling(nmc/thin)*k),ncol=k); S.sigma <- matrix(rep(NA,ceiling(nmc/thin)*nnorm),ncol=nnorm); S.zdp <- matrix(numeric(n*k),ncol=k)
+S.pi <- matrix(rep(NA,ceiling(nmc/thin)*k),ncol=k); S.mu <- matrix(rep(NA,ceiling(nmc/thin)*(nnorm+nexp)),ncol=nnorm+nexp); S.sigma <- matrix(rep(NA,ceiling(nmc/thin)*nnorm),ncol=nnorm); S.zdp <- matrix(numeric(n*k),ncol=k)
 S.shapeNorm <- matrix(rep(NA,ceiling(nmc/thin)*nnorm),ncol=nnorm); S.scaleNorm <- matrix(rep(NA,ceiling(nmc/thin)*nnorm),ncol=nnorm);
 S.alphadir <- rep(NA,ceiling(nmc/thin)); S.allocs <- matrix(rep(NA,ceiling(nmc/thin)*k),ncol=k);
 if(nexp > 0){
@@ -119,7 +119,7 @@ alphadir <- dirichletParInit
         V <- PiV$V
         
         #Parameter der Mischungskomponenten sampeln
-        muSigma <- .sampleComponentParameters(z,k,nnorm,ngamma,zdp,normNull,expNeg,expPos,gamNeg,gamPos,shapeNorm0,scaleNorm0,shapeExpNeg0,scaleExpNeg0,shapeExpPos0,scaleExpPos0,shapeGamNegAlpha0,shapeGamNegBeta0,scaleGamNegAlpha0,scaleGamNegBeta0,shapeGamPosAlpha0,shapeGamPosBeta0,scaleGamPosAlpha0,scaleGamPosBeta0,shapeGam,scaleGam,gammaProposalFactor,gammaShapeGrid)
+        muSigma <- .sampleComponentParameters(z,k,nnorm,nexp,ngamma,zdp,normNull,expNeg,expPos,gamNeg,gamPos,shapeNorm0,scaleNorm0,shapeExpNeg0,scaleExpNeg0,shapeExpPos0,scaleExpPos0,shapeGamNegAlpha0,shapeGamNegBeta0,scaleGamNegAlpha0,scaleGamNegBeta0,shapeGamPosAlpha0,shapeGamPosBeta0,scaleGamPosAlpha0,scaleGamPosBeta0,shapeGam,scaleGam,gammaProposalFactor,gammaShapeGrid)
         mu <- muSigma$mu
         Sigma <- muSigma$Sigma
         shapeGam <- muSigma$shapeGam
@@ -239,11 +239,11 @@ values <- matrix(numeric(length(z) * k), nrow = k)
     }
     if (length(expNeg) > 0) {
         i <- expNeg
-        values[i, ] <- pi_mean[i] * dexp(x = -z, rate = 1/mu_mean[i])
+        values[i, ] <- pi_mean[i] * dexp(x = -z, rate = 1/mu_mean[reihenfolge_mu[reihenfolge_mu == reihenfolge_alles[i]]])
     }
     if (length(expPos) > 0) {
         i <- expPos
-        values[i, ] <- pi_mean[i] * dexp(x = z, rate = 1/mu_mean[i])
+        values[i, ] <- pi_mean[i] * dexp(x = z, rate = 1/mu_mean[reihenfolge_mu[reihenfolge_mu == reihenfolge_alles[i]]])
     }
     if (length(gamNeg) > 0) {
         i <- gamNeg
@@ -327,28 +327,28 @@ for (ind in normNull) {
 for (ind in expNeg) {
   compsResults[[ind]] = new("MixtureComponent",
              name="ExpNeg",
-             parameters=list(rate=1/mu_mean[ind]),
+             parameters=list(rate=1/mu_mean[reihenfolge_mu[reihenfolge_mu == reihenfolge_alles[ind]]]),
              pdf=function(x, rate) { dexp(-x, rate) },
              color="red")
 }
 for (ind in expPos) {
   compsResults[[ind]] = new("MixtureComponent",
                 name="ExpPos",
-                parameters=list(rate=1/mu_mean[ind]),
+                parameters=list(rate=1/mu_mean[reihenfolge_mu[reihenfolge_mu == reihenfolge_alles[ind]]]),
                 pdf=dexp,
                 color="green")
 }
 for (ind in gamNeg) {
   compsResults[[ind]] = new("MixtureComponent",
                 name="GamNeg",
-                parameters=list(shape=shapeGam_mean[ind==c(gamNeg, gamPos)], shapeAcceptanceProbability=acceptanceProb_mean[ind==c(gamNeg, gamPos)], scale=scaleGam_mean[ind==c(gamNeg, gamPos)]),
+                parameters=list(shape=shapeGam_mean[ind==c(gamNeg, gamPos)], scale=scaleGam_mean[ind==c(gamNeg, gamPos)]), #shapeAcceptanceProbability=acceptanceProb_mean[ind==c(gamNeg, gamPos)]
                 pdf=function(x, shape, scale) { dgamma(-x, shape=shape, scale=scale) },
                 color="purple")
 }
 for (ind in gamPos) {
   compsResults[[ind]] = new("MixtureComponent",
                 name="GamPos",
-                parameters=list(shape=shapeGam_mean[ind==c(gamNeg, gamPos)], shapeAcceptanceProbability=acceptanceProb_mean[ind==c(gamNeg, gamPos)], scale=scaleGam_mean[ind==c(gamNeg, gamPos)]),
+                parameters=list(shape=shapeGam_mean[ind==c(gamNeg, gamPos)], scale=scaleGam_mean[ind==c(gamNeg, gamPos)]), #shapeAcceptanceProbability=acceptanceProb_mean[ind==c(gamNeg, gamPos)]
                 pdf=dgamma,
                 color="orange")
 }
@@ -358,10 +358,10 @@ for (ind in normNull) {
     compsChains[[ind]] = list(name="NormNull", sd=S.sigma[,ind==normNull], precision.shape=S.shapeNorm[,ind==normNull], precision.scale=S.shapeNorm[,ind==normNull])
 }
 for (ind in expNeg) {
-    compsChains[[ind]] = list(name="ExpNeg", rate=1/S.mu[,ind], rate.shape=S.shapeExp[,ind==c(expNeg, expPos)], rate.scale=S.scaleExp[,ind==c(expNeg, expPos)])
+    compsChains[[ind]] = list(name="ExpNeg", rate=1/S.mu[,reihenfolge_mu[reihenfolge_mu == reihenfolge_alles[ind]]], rate.shape=S.shapeExp[,ind==c(expNeg, expPos)], rate.scale=S.scaleExp[,ind==c(expNeg, expPos)])
 }
 for (ind in expPos) {
-    compsChains[[ind]] = list(name="ExpPos", rate=1/S.mu[,ind], rate.shape=S.shapeExp[,ind==c(expNeg, expPos)], rate.scale=S.scaleExp[,ind==c(expNeg, expPos)])
+    compsChains[[ind]] = list(name="ExpPos", rate=1/S.mu[,reihenfolge_mu[reihenfolge_mu == reihenfolge_alles[ind]]], rate.shape=S.shapeExp[,ind==c(expNeg, expPos)], rate.scale=S.scaleExp[,ind==c(expNeg, expPos)])
 }
 for (ind in gamNeg) {
     compsChains[[ind]] = list(name="GamNeg", shape=S.shapeGam[,ind==c(gamNeg, gamPos)], scale=S.scaleGam[,ind==c(gamNeg, gamPos)], scale.shape=S.scaleGamAlpha[,ind==c(gamNeg, gamPos)], scale.scale=S.scaleGamBeta[,ind==c(gamNeg, gamPos)], shape.acceptance_probability=S.acceptanceProb[,ind==c(gamNeg, gamPos)])
@@ -369,7 +369,6 @@ for (ind in gamNeg) {
 for (ind in gamPos) {
     compsChains[[ind]] = list(name="GamPos", shape=S.shapeGam[,ind==c(gamNeg, gamPos)], scale=S.scaleGam[,ind==c(gamNeg, gamPos)], scale.shape=S.scaleGamAlpha[,ind==c(gamNeg, gamPos)], scale.scale=S.scaleGamBeta[,ind==c(gamNeg, gamPos)], shape.acceptance_probability=S.acceptanceProb[,ind==c(gamNeg, gamPos)])
 }
-
 #configuration
 configuration_inits <- list(components=compsInit,pi=piInit, classification=classificationsInit, dirichletParameter=dirichletParInit)
 configuration_priors <- list(components=components_priors, dirichlet=list(shapealphadir=shapeDir, scalealphadir=scaleDir))
@@ -444,10 +443,10 @@ return(mm)
 }
 
 
-.sampleComponentParameters <- function(x,k,nnorm,ngamma,zdp,normNull,expNeg,expPos,gamNeg,gamPos,shapeNorm0,scaleNorm0,shapeExpNeg0,scaleExpNeg0,shapeExpPos0,scaleExpPos0,shapeGamNegAlpha0,shapeGamNegBeta0,scaleGamNegAlpha0,scaleGamNegBeta0,shapeGamPosAlpha0,shapeGamPosBeta0,scaleGamPosAlpha0,scaleGamPosBeta0,shapeGam,scaleGam,gammaProposalFactor,gammaShapeGrid){
+.sampleComponentParameters <- function(x,k,nnorm,nexp,ngamma,zdp,normNull,expNeg,expPos,gamNeg,gamPos,shapeNorm0,scaleNorm0,shapeExpNeg0,scaleExpNeg0,shapeExpPos0,scaleExpPos0,shapeGamNegAlpha0,shapeGamNegBeta0,scaleGamNegAlpha0,scaleGamNegBeta0,shapeGamPosAlpha0,shapeGamPosBeta0,scaleGamPosAlpha0,scaleGamPosBeta0,shapeGam,scaleGam,gammaProposalFactor,gammaShapeGrid){
 
   # Speicherobjekte initialisieren
-  mu    <- rep(NA,k)
+  mu    <- rep(NA,nnorm+nexp)
   Sigma <- rep(NA,nnorm)
   shapeNorm <- rep(NA,nnorm)
   scaleNorm <- rep(NA,nnorm)
