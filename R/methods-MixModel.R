@@ -71,7 +71,8 @@ setMethod("summary", signature(object="MixModel"),
               colnames(df) <- parameterNames
               rownames(df) <- as.character(ind)
               df$pi <- pi[ind]
-              df$numPoints <- table(classification(object))[as.character(ind)]
+              numPoints_temp <- table(classification(object))[as.character(ind)]
+              if(is.na(numPoints_temp)){df$numPoints <- 0 } else {df$numPoints <- numPoints_temp}
               result[[comp]] <- df
             }  
             return(result)
