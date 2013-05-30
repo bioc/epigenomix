@@ -239,11 +239,11 @@ values <- matrix(numeric(length(z) * k), nrow = k)
     }
     if (length(expNeg) > 0) {
         i <- expNeg
-        values[i, ] <- pi_mean[i] * dexp(x = -z, rate = 1/mu_mean[reihenfolge_mu[reihenfolge_mu == reihenfolge_alles[i]]])
+        values[i, ] <- pi_mean[i] * dexp(x = -z, rate = 1/mu_mean[reihenfolge_mu == reihenfolge_alles[i]])
     }
     if (length(expPos) > 0) {
         i <- expPos
-        values[i, ] <- pi_mean[i] * dexp(x = z, rate = 1/mu_mean[reihenfolge_mu[reihenfolge_mu == reihenfolge_alles[i]]])
+        values[i, ] <- pi_mean[i] * dexp(x = z, rate = 1/mu_mean[reihenfolge_mu == reihenfolge_alles[i]])
     }
     if (length(gamNeg) > 0) {
         i <- gamNeg
@@ -327,14 +327,14 @@ for (ind in normNull) {
 for (ind in expNeg) {
   compsResults[[ind]] = new("MixtureComponent",
              name="ExpNeg",
-             parameters=list(rate=1/mu_mean[reihenfolge_mu[reihenfolge_mu == reihenfolge_alles[ind]]]),
+             parameters=list(rate=1/mu_mean[reihenfolge_mu == reihenfolge_alles[ind]]),
              pdf=function(x, rate) { dexp(-x, rate) },
              color="red")
 }
 for (ind in expPos) {
   compsResults[[ind]] = new("MixtureComponent",
                 name="ExpPos",
-                parameters=list(rate=1/mu_mean[reihenfolge_mu[reihenfolge_mu == reihenfolge_alles[ind]]]),
+                parameters=list(rate=1/mu_mean[reihenfolge_mu == reihenfolge_alles[ind]]),
                 pdf=dexp,
                 color="green")
 }
@@ -358,10 +358,10 @@ for (ind in normNull) {
     compsChains[[ind]] = list(name="NormNull", sd=S.sigma[,ind==normNull], precision.shape=S.shapeNorm[,ind==normNull], precision.scale=S.shapeNorm[,ind==normNull])
 }
 for (ind in expNeg) {
-    compsChains[[ind]] = list(name="ExpNeg", rate=1/S.mu[,reihenfolge_mu[reihenfolge_mu == reihenfolge_alles[ind]]], rate.shape=S.shapeExp[,ind==c(expNeg, expPos)], rate.scale=S.scaleExp[,ind==c(expNeg, expPos)])
+    compsChains[[ind]] = list(name="ExpNeg", rate=1/S.mu[,reihenfolge_mu == reihenfolge_alles[ind]], rate.shape=S.shapeExp[,ind==c(expNeg, expPos)], rate.scale=S.scaleExp[,ind==c(expNeg, expPos)])
 }
 for (ind in expPos) {
-    compsChains[[ind]] = list(name="ExpPos", rate=1/S.mu[,reihenfolge_mu[reihenfolge_mu == reihenfolge_alles[ind]]], rate.shape=S.shapeExp[,ind==c(expNeg, expPos)], rate.scale=S.scaleExp[,ind==c(expNeg, expPos)])
+    compsChains[[ind]] = list(name="ExpPos", rate=1/S.mu[,reihenfolge_mu == reihenfolge_alles[ind]], rate.shape=S.shapeExp[,ind==c(expNeg, expPos)], rate.scale=S.scaleExp[,ind==c(expNeg, expPos)])
 }
 for (ind in gamNeg) {
     compsChains[[ind]] = list(name="GamNeg", shape=S.shapeGam[,ind==c(gamNeg, gamPos)], scale=S.scaleGam[,ind==c(gamNeg, gamPos)], scale.shape=S.scaleGamAlpha[,ind==c(gamNeg, gamPos)], scale.scale=S.scaleGamBeta[,ind==c(gamNeg, gamPos)], shape.acceptance_probability=S.acceptanceProb[,ind==c(gamNeg, gamPos)])
@@ -522,7 +522,7 @@ return(mm)
         Sigma[j] <- sqrt(1/rgamma(n=1,shape=shapeNorm[j],scale=scaleNorm[j]))
       } else if( length(intersect(j, expNeg)) == 1){
         # Ziehen von Werten aus Exponentialverteilungen fuer negative Werte
-        mu[j] <- 1/rgamma(n=1,shape=shapeExpNeg[j-max(normNull)],scale=scaleExpNeg[j-max(normNull)])  
+        mu[j] <- 1/rgamma(n=1,shape=shapeExpNeg[j-max(normNull)],scale=scaleExpNeg[j-max(normNull)])
       } else if( length(intersect(j, expPos)) == 1){
         # Ziehen von Werten aus Exponentialverteilungen fuer positive Werte
         mu[j] <- 1/rgamma(n=1,shape=shapeExpPos[j-max(expNeg)],scale=scaleExpPos[j-max(expNeg)])
