@@ -21,7 +21,8 @@
   
   # chain and component are given
   if (!missing(chain) & !missing(component)) {
-    if (!all(sapply(compChains[component], function(x) {is.element(chain, x)}))) {
+    if (!(all(sapply(compChains[component], function(x) {is.element(chain, x)})) |
+        (length(chain) == 1 & chain[1] == "pi"))) {
       stop("All specified chains must be present in all specified components.")
     }
   }
@@ -34,7 +35,9 @@
   }
   # chain is given and component is missing
   if (!missing(chain) & missing(component)) {
-    if (is.element(chain, c("pi", "dirichletParameter"))) {
+    if (chain == ("pi")) {
+      component <- 1:ncol(object)
+    } else if (chain == "dirichletParameter") {
       component <- 0
     } else {
       component <- which(sapply(compChains, function(x) {is.element(chain, x)}))
@@ -50,10 +53,10 @@
   if (chain[1] == "pi") {
     data <- chains(object)[["pi"]]
     ind <- seq(itb+1, nrow(data), thin)
-    data <- data[ind,,drop=FALSE]
+    data <- data[ind, component, drop=FALSE]
     ylab <- rep("Value", ncol(data))
     xlab <- rep("Iteration", ncol(data))
-    main <- paste("pi - component ", 1:ncol(data), sep="")
+    main <- paste("pi - component ", component, sep="")
     if (missing(cols)) {
       cols <- 1
       rows <- ncol(data)
