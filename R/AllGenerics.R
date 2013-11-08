@@ -43,7 +43,7 @@ setGeneric("integrateData", function(expr, chipseq, factor, reference)
            standardGeneric("integrateData"))
 
 setGeneric("matchProbeToPromoter", function(probeToTranscript, transcriptToTSS,
-                                            promWidth, mode)
+                                            promWidth=4000, mode="union", fix="center")
            standardGeneric("matchProbeToPromoter"))
 
 setGeneric("mlMixModel", function(z, normNull=c(), expNeg=c(), expPos=c(),

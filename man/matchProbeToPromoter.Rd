@@ -1,9 +1,6 @@
 \name{matchProbeToPromoter}
 \alias{matchProbeToPromoter}
-\alias{matchProbeToPromoter,list,data.frame,numeric,character-method}
-\alias{matchProbeToPromoter,list,data.frame,numeric,missing-method}
-\alias{matchProbeToPromoter,list,data.frame,missing,character-method}
-\alias{matchProbeToPromoter,list,data.frame,missing,missing-method}
+\alias{matchProbeToPromoter,list,data.frame-method}
 
 \title{
   A function assigning promoter regions to given probe IDs.
@@ -16,7 +13,7 @@
 }
 
 \usage{
-matchProbeToPromoter(probeToTranscript, transcriptToTSS, promWidth, mode)
+matchProbeToPromoter(probeToTranscript, transcriptToTSS, promWidth = 4000, mode = "union", fix = "center")
 }
 
 \arguments{
@@ -42,6 +39,12 @@ matchProbeToPromoter(probeToTranscript, transcriptToTSS, promWidth, mode)
   \item{mode}{
     How probes with multiple transcripts should be handled. Must be either 
     "union", "keepAll" or "dropMultiple". (default "union")
+  }
+  \item{fix}{
+    Denotes what to use as anchor when defining the promoter
+    region. Must be either  "center", "start" or "end". "Center" means
+    that the TSS is in the middle of the promoter, whereas "end" means
+    that the promoter is placed upsream of the TSS. (default "center")
   }
 }
 

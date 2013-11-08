@@ -1,4 +1,4 @@
-.matchProbeToPromoter <- function(probeToTranscript, transcriptToTSS, promWidth, mode) {
+.matchProbeToPromoter <- function(probeToTranscript, transcriptToTSS, promWidth=4000, mode="union", fix="center") {
 
   if (is.null(names(probeToTranscript)) || any(duplicated(names(probeToTranscript)))) {
     stop("names of probeToTranscript must be valid unique probe names.")
@@ -28,7 +28,7 @@
         ranges=IRanges(start=transcriptDf[, 3], width=1),
         strand=transcriptDf[, 4],
         probe=transcriptDf[, 5])
-    ranges <- resize(ranges, width=promWidth, fix="center")
+    ranges <- resize(ranges, width=promWidth, fix=fix)
 
 
   # dropMultiple: remove all probes with > 1 unique promoter
@@ -41,7 +41,7 @@
         ranges=IRanges(start=transcriptDf[, 3], width=1),
         strand=transcriptDf[, 4],
         probe=transcriptDf[, 5])
-    ranges <- resize(ranges, width=promWidth, fix="center")
+    ranges <- resize(ranges, width=promWidth, fix=fix)
 
     
   # union: calculate the union of all promoter regions of a probe
@@ -58,13 +58,13 @@
         ranges=IRanges(start=tDfClear[, 3], width=1),
         strand=tDfClear[, 4],
         probe=tDfClear[, 5])
-    rangesClear <- resize(rangesClear, width=promWidth, fix="center")
+    rangesClear <- resize(rangesClear, width=promWidth, fix=fix)
 
     rangesAmbiguous <- lapply(tDfAmbiguous, function(df) { # this takes some time :(
         ranges = GRanges(seqnames=df[, 2],
           ranges=IRanges(start=df[, 3], width=1),
           strand=df[, 4])
-        ranges = resize(ranges, width=promWidth, fix="center")
+        ranges = resize(ranges, width=promWidth, fix=fix)
         ranges = reduce(disjoin(ranges))
         elementMetadata(ranges)$probe = df[1, 5]
         return(ranges)
@@ -86,27 +86,5 @@
 
 
 setMethod("matchProbeToPromoter",
-          signature=c(probeToTranscript="list", transcriptToTSS="data.frame",
-            promWidth="numeric", mode="character"),
+          signature=c(probeToTranscript="list", transcriptToTSS="data.frame"),
           .matchProbeToPromoter)
-
-setMethod("matchProbeToPromoter",
-          signature=c(probeToTranscript="list", transcriptToTSS="data.frame",
-            promWidth="missing", mode="character"),
-          function(probeToTranscript, transcriptToTSS, mode) {
-            .normalizeChIP(probeToTranscript, transcriptToTSS, 4000, mode)
-          })
-
-setMethod("matchProbeToPromoter",
-          signature=c(probeToTranscript="list", transcriptToTSS="data.frame",
-            promWidth="numeric", mode="missing"),
-          function(probeToTranscript, transcriptToTSS, promWidth) {
-            .normalizeChIP(probeToTranscript, transcriptToTSS, promWidth, "union")
-          })
-
-setMethod("matchProbeToPromoter",
-          signature=c(probeToTranscript="list", transcriptToTSS="data.frame",
-            promWidth="missing", mode="missing"),
-          function(probeToTranscript, transcriptToTSS) {
-            .normalizeChIP(probeToTranscript, transcriptToTSS, 4000, "union")
-          })
