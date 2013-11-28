@@ -24,9 +24,9 @@
 \begin{document}
 \SweaveOpts{concordance=TRUE}
 
-\title{epigenomix --- Epigenetic and gene expression data normalization and integration with mixture models}
+\title{epigenomix --- Epigenetic and gene transcription data normalization and integration with mixture models}
 \author{Hans-Ulrich Klein, Martin Sch\"{a}fer}
-\date{March 13, 2013}
+\date{November 28, 2013}
 
 \maketitle
 
@@ -40,25 +40,41 @@ options(continue=" ")
 \newpage
 
 \section{Introduction}
-This package provides methods for an integrative analysis of gene expression and epigenetic data, especially histone ChIP-seq data. Histone modifications are an epigenetic key mechanism to activate or repress the expression of genes. Several data sets consisting of matched microarray expression data and histone modification data measured by ChIP-seq have been published. However, both data types are often analysed separately and results are compared afterwards. The methods implemented here are designed to detect genes that are differentially expressed between two conditions due to an altered histone modification and are suitable for very small sample sizes.\\
+This package provides methods for an integrative analysis of gene transcription and epigenetic data, especially histone ChIP-seq data. Histone modifications are an epigenetic key mechanism to activate or repress the transcription of genes. Several data sets consisting of matched transcription data and histone modification data localized by ChIP-seq have been published. However, both data types are often analysed separately and results are compared afterwards. The methods implemented here are designed to detect transcripts that are differentially transcribed between two conditions due to an altered histone modification and are suitable for very small sample sizes. Transcription data may be obtained by microarrays or RNA-seq.\\
 Briefly, the following workflow is described in this documnet:
 \begin{enumerate}
-  \item Matching of both data types by assigning the number of ChIP-seq reads aligning within the promoter region of a gene to the expression value of that gene
+  \item Matching of both data types by assigning the number of ChIP-seq reads aligning within the promoter region to the respective transcription value
   \item Normalization of ChIP-seq values
-  \item Calculation of a correlation score for each gene by multiplying the standardized difference of ChIP-seq values by the standardized difference of expression values
-  \item Fitting a (Bayesian) mixture model to this score: The implicit assignment of genes to mixture components is used to classify genes into one of the following groups: (i) Genes with equally directed differences in both data sets, (ii) genes with reversely directed differences in both data sets and (iii) genes with no differences in at least one of the two data sets. Group (iii) is represented by centred normal components whereas an exponential component is used for group (i) and a mirrored exponential component for group (ii).
+  \item Calculation of a correlation score for each gene by multiplying the standardized difference of ChIP-seq values by the standardized difference of transcription values
+  \item Fitting a (Bayesian) mixture model to this score: The implicit assignment of transcripts to mixture components is used to classify transcripts into one of the following groups: (i) Transcripts with equally directed differences in both data sets, (ii) transcripts with reversely directed differences in both data sets and (iii) transcripts with no differences in at least one of the two data sets. Group (iii) is represented by centred normal components whereas an exponential component is used for group (i) and a mirrored exponential component for group (ii).
 \end{enumerate}
 \pagebreak
 
 \section{Data preprocessing and normalization}
-\subsection{Gene expression data}
-First, we load an example gene expression data set. The data set consists of four samples. Two wild type replicates and two \textit{CEBPA} knock-out replicates. The differences between \textit{CEBPA} knock-down and wild type samples are of interest. The data set is stored as an \Rclass{ExpressionSet} object and was reduced to a few probesets on chromosome 1.
+\subsection{Microarray gene expression data}
+First, we load an example microarray gene expression data set. The data set consists of four samples. Two wild type replicates and two \textit{CEBPA} knock-out replicates. The differences between \textit{CEBPA} knock-down and wild type samples are of interest. The data set is stored as an \Rclass{ExpressionSet} object and was reduced to a few probesets on chromosome 1.
 <<label=GEdata>>=
 library(epigenomix)
 data(eSet)
 pData(eSet)
 @
-Data was measured using Affymetrix Mouse Gene 1.0 ST arrays and RMA normalized. See packages \Rpackage{affy} and \Rpackage{Biobase} how to process affymetrix gene expression data.
+Data was measured using Affymetrix Mouse Gene 1.0 ST arrays and RMA normalization was applied. See packages \Rpackage{affy} and \Rpackage{Biobase} how to process affymetrix gene expression data.
+
+\subsection{RNA-seq data}
+Using RNA-seq instead of microarrays has the advantage that the abundance of individual transcript can be estimated. For this task, software like Cufflinks \cite{Trapnell2010} can be employed. Moreover, the Cuffdiff method (part of the Cufflinks software package) allows to summarize the estimated transcript abundances over all transcripts that share the same transcriptional start site (TSS) and offers several normalization methods, e.g. scaling based on the observed quartiles \cite{Trapnell2013}. Grouping all transcripts sharing the same TSS is favourable for the later matching task. Importing the Cuffdiff output as data frame gives us the FPKM (fragments per kilobase of transcript per million fragments mapped) values.
+<<label=RNAseqImport>>=
+data(fpkm)
+head(fpkm[c(-2,-8), ])
+@
+The last six columns were not included in the Cuffdiff output, but were extracted from the annotation file given as input to Cuffdiff. Next, we construct an \Rclass{ExpressionSet} object so that we can handle RNA-seq data in the way as microarray data:
+<<label=RNAseqToESet>>=
+mat <- log2(as.matrix(fpkm[, c("CEBPA_WT", "CEBPA_KO")]))
+rownames(mat) <- fpkm$tss_id
+eSet.seq <- ExpressionSet(mat)
+pData(eSet.seq)$CEBPA <- factor(c("wt", "ko"))
+fData(eSet.seq)$chr <- fpkm$chr
+fData(eSet.seq)$tss <- fpkm$tss
+@
 
 \subsection{Histone ChIP-seq data}
 The example histone ChIP-seq data is stored as \Rclass{GRangesList} object:
@@ -66,10 +82,13 @@ The example histone ChIP-seq data is stored as \Rclass{GRangesList} object:
 data(mappedReads)
 names(mappedReads)
 @
-There are two elements within the list. One \textit{CEBPA} wild type and one knock-out sample. Most of the originally obtained reads were removed to reduce storage space. Further, the reads were extended towards the 3 prime end to the mean DNA fragment size of 200bps and duplicated reads were removed. See R packages \Rpackage{Rsamtools} and \Rpackage{GenomicRanges} how to read in and process sequence reads.
+There are two elements within the list. One \textit{CEBPA} wild type and one knock-out sample. Most of the originally obtained reads were removed to reduce storage space. Further, the reads were extended towards the 3 prime end to the mean DNA fragment size of 200bps and duplicated reads were removed. See R packages \Rpackage{Rsamtools} and \Rpackage{GenomicRanges} how to read in and process sequence reads
 
 \subsection{Data matching}
-The presented ChIP-seq data measured H3K4me3 histone modifications. This modification primarily occures at promoter regions. Hence, we assign ChIP-seq values to probesets by counting the number of reads lying wihtin the promoter of the measured transcript. Therefore, we first create a list with one element for each probeset that stores the Ensemble transcript IDs of all transcripts measured by that probeset:
+The presented ChIP-seq data lozalized H3K4me3 histone modifications. This modification primarily occures at promoter regions. Hence, we assign ChIP-seq values to transcription values by counting the number of reads lying wihtin the promoter of the measured transcript.
+
+\subsubsection{Microarray gene expression data}
+Depending on the array design, probes often measure more than one transcripts simultaneously. These transcripts may have different TSS/promoters. This makes data matching in case of arrays somewhat tricky. We first create a list with one element for each probe that stores the Ensemble transcript IDs of all transcripts measured by that probeset:
 <<label=ProbeToTranscript>>=
 probeToTrans <- fData(eSet)$transcript
 probeToTrans <- strsplit(probeToTrans, ",")
@@ -91,7 +110,7 @@ transToTSS <- getBM(attributes=c("ensembl_transcript_id",
     filters="ensembl_transcript_id",
     values=transcripts, mart=mart)
 @
-Having these information, the promoter region for each probeset can be calculated unsing \Rmethod{matchProbeToPromoter}. Argument \Rfunarg{mode} defines how probesets with multiple transcripts should be handled.
+Having these information, the promoter region for each probe can be calculated unsing \Rmethod{matchProbeToPromoter}. Argument \Rfunarg{mode} defines how probes with multiple transcripts should be handled.
 <<label=dataMatching>>=
 promoters <- matchProbeToPromoter(probeToTrans,
     transToTSS, promWidth=6000, mode="union")
@@ -105,6 +124,25 @@ chipSetRaw
 head(chipVals(chipSetRaw))
 @
 The method returns an object of class \Rclass{ChIPseqSet}, which is derived from class \Rclass{eSet} and is the ChIP-seq counterpart to \Rclass{ExpressionSet}.
+
+\subsubsection{RNA-seq data}
+In case of RNA-seq data, we have one transcription value for each group of transcripts sharing the same TSS. Hence, a promoter region can be simply assigned to each transcription value:
+<<label=makeChIPseqSet_rna>>=
+promoters.seq <- GRanges(seqnames=fData(eSet.seq)$chr,
+                        ranges=IRanges(start=fData(eSet.seq)$tss, width=1),
+                        probe=featureNames(eSet.seq))
+promoters.seq <- resize(promoters.seq, width=3000, fix="center")
+promoters.seq <- split(promoters.seq, elementMetadata(promoters.seq)$probe)
+@
+
+Next, we can count the number of reads falling into our promoters:
+<<label=makeChIPseqSet>>=
+chipSetRaw.seq <- summarizeReads(mappedReads, promoters.seq, summarize="add")
+chipSetRaw.seq
+head(chipVals(chipSetRaw.seq))
+@
+From now on, we do not distinguish between microarray and RNA-seq any more. \Rcode{eSet} can be substituted by \Rcode{eSet.ser} and \Rcode{chipSetRaw} by \Rcode{chipSetRaw.seq}. In the following, the microarray data is used, since the RNA-seq data was not obtained from the same samples as the ChIP-seq data (actually, not even the same organism).
+
 \pagebreak
 
 
@@ -209,14 +247,7 @@ unlist(mget(posProbes, mogene10sttranscriptclusterSYMBOL))
 @
 \pagebreak
 
-\begin{thebibliography}{}
-\bibitem[Anders and Huber, 2010]{Anders2010}
-S. Anders and W. Huber (2010) Differential expression analysis for sequence count data.
-\textit{Genome Biol.}, \textbf{11}(10), R106.
-
-\bibitem[Sch\"{a}fer {\it et~al}., 2012]{Schaefer2012}
-M. Sch\"{a}fer, O. Lkhagvasuren, H.-U. Klein \textit{et~al}. (2012) Integrative analyses for Omics data: A Bayesian mixture model to assess the concordance of ChIP-chip and ChIP-seq measurements.
-\textit{J Toxicol Environ Health A.}, \textbf{75}(8-10), 461--470.
-\end{thebibliography}
+\bibliographystyle{unsrturl}
+\bibliography{epigenomix}
 
 \end{document}

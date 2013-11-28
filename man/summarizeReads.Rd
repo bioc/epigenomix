@@ -53,11 +53,11 @@
   had been used, one might want to use "average".
 
   This method uses \code{\link{countOverlaps}} and counts
-  each read that overlaps with at least one base. If more flexibility
-  is needed, \code{\link{summarizeOverlaps}}
-  might be an option. In contrast to this method,
-  \code{\link{summarizeOverlaps}} ensures that each
-  read is counted only once, even if it overlaps with different regions.
+  each read that overlaps with at least one base. 
+%  If more flexibility is needed, \code{\link{summarizeOverlaps}}
+%  might be an option. In contrast to this method,
+%  \code{\link{summarizeOverlaps}} ensures that each
+%  read is counted only once, even if it overlaps with different regions.
 }
 
 \value{
@@ -73,7 +73,7 @@
 \seealso{
   \code{\link{matchProbeToPromoter}}
   \code{\link{ChIPseqSet-class}}
-  \code{\link{summarizeOverlaps}}
+%  \code{\link[GenomicRanges]{summarizeOverlaps}}
 }
 
 \examples{
