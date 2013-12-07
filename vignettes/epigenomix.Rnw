@@ -247,7 +247,7 @@ unlist(mget(posProbes, mogene10sttranscriptclusterSYMBOL))
 @
 \pagebreak
 
-\bibliographystyle{unsrt}
+\bibliographystyle{unsrturl}
 \bibliography{epigenomix}
 
 \end{document}
