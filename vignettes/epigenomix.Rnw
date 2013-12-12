@@ -245,9 +245,11 @@ posProbes <- rownames(intData)[classification(bayesmm, method="mode") == 4]
 library("mogene10sttranscriptcluster.db")
 unlist(mget(posProbes, mogene10sttranscriptclusterSYMBOL))
 @
-\pagebreak
+
+\newpage
 
 \bibliographystyle{unsrturl}
 \bibliography{epigenomix}
 
 \end{document}
+
