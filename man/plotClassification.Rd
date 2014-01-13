@@ -36,6 +36,10 @@ plotClassification(object, method, ...)
   \code{classification}. E.g., if \code{\link{bayesMixModel}} was
   used to create the mixture model, valid options are "maxDens",
   "median" and "mode".
+
+  Arguments "col" and "pch" can be given to specify the color and
+  the shape of the points plotted. Their length must equal to the
+  number of components.
 }
 
 \author{

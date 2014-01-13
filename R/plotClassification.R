@@ -5,7 +5,6 @@
   if (missing(method)) {
     method <- names(object@results$classification)[1]
   }
-
     
   # default colors
   if (!is.element("col", names(args))) {
@@ -13,7 +12,14 @@
   } else {
     myCols <- args$col
   }
-  
+
+  # default point type
+  if (!is.element("pch", names(args))) {
+    myPchs <- rep(1, length(myCols))
+  } else {
+    myPchs <- args$pch
+  }
+
   # set xlim and ylim if not given
   if (!is.element("xlim", names(args))) {
     args$xlim <- c(min(mmData(object)), max(mmData(object)))
@@ -35,6 +41,7 @@
   args$x <- mmData(object)[classification(object, method) == compInds[1]]
   args$y <- rep(compInds[1], length(args$x))
   args$col <- myCols[compInds[1]]
+  args$pch <- myPchs[compInds[1]]
   do.call(plot, args)
 
   # plot other components
@@ -42,7 +49,7 @@
     for (i in 2:length(compInds)) {
       x <- mmData(object)[classification(object, method) == compInds[i]]
       y <- rep(compInds[i], length(x))
-      points(x, y, col=myCols[compInds[i]])
+      points(x, y, col=myCols[compInds[i]], pch=myPchs[compInds[i]])
     }
   }
 }

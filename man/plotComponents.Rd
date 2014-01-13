@@ -34,7 +34,8 @@ plotComponents(object, density = FALSE, ...)
   If the argument "col" is given, the first color is used for the mixture
   pdf. The following colors (2 to n+1) are used for the n mixture components'
   pdfs. If \code{density} is set to \code{TRUE}, a further color (n+2) must be
-  given, that is used for the data pdf.
+  given, that is used for the data pdf. The same applies for the argument "lty",
+  which can be given to specify the line type used to plot the densities.
 }
 
 \author{

@@ -63,6 +63,12 @@
     myCols <- args$col
   }
 
+  # set line types (mix, 1st comp, ..., nth comp, data)
+  myLtys <- rep(1, length(myCols))
+  if (is.element("lty", names(args))) {
+    myLtys <- args$lty
+  }
+
   # set xlab and ylab if not given
   if (!is.element("xlab", names(args))) {
     args$xlab <- "Data"
@@ -75,6 +81,7 @@
   if (density) { # plot empirical density 
     args$col <- myCols[length(myCols)]
     args$type <- "l"
+    args$lty <- myLtys[length(myLtys)]
     args$x <- xp
     args$y <- yData
     do.call(plot, args)
@@ -90,16 +97,16 @@
     }
     do.call(hist, args)
   }
-  lines(xp, yMix, col=myCols[1]) # plot mixture density
+  lines(xp, yMix, col=myCols[1], lty=myLtys[1]) # plot mixture density
   # plot null components first, then neg. and pos. components
   indFirst <- which(!is.element(sapply(components(object), function(x) {return(x@name)}),
                                 c("ExpNeg", "ExpPos", "GamNeg", "GamPos")))
   indSecond <- setdiff(1:length(components(object)), indFirst)
   for (i in indFirst) {   # plot null components
-    lines(xp, yComps[i, ], col=myCols[1+i])
+    lines(xp, yComps[i, ], col=myCols[1+i], lty=myLtys[1+i])
   }
   for (i in indSecond) {     # plot neg + pos components
-    lines(xp, yComps[i, ], col=myCols[1+i])
+    lines(xp, yComps[i, ], col=myCols[1+i], lty=myLtys[1+i])
   }
 }
 
