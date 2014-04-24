@@ -68,15 +68,15 @@ bayesMixModel(z, normNull = c(), expNeg = c(), expPos = c(), gamNeg = c(), gamPo
     points are assigned to class floor(k/2) with k = number of components.
   }
   \item{dirichletParInit}{
-    Initial parameter of Dirichlet process.
+    Initial concentration parameter of Dirichlet distribution.
   }
   \item{shapeDir}{
-    Prior shape parameter of Gamma distribution for parameter of
-    Dirichlet process.
+    Prior shape parameter of Gamma distribution for concentration parameter of
+    Dirichlet distribution.
   }
   \item{scaleDir}{
-    Prior scale parameter of Gamma distribution for parameter of
-    Dirichlet process.
+    Prior scale parameter of Gamma distribution for concentration parameter of
+    Dirichlet distribution.
   }
   \item{shapeNorm0}{
     Prior shape parameter of Gamma distribution for precision of normal components.
