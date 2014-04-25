@@ -70,8 +70,8 @@
         return(ranges)
     })
     names(rangesAmbiguous) <- NULL
-    rangesAmbiguous <- suppressWarnings(do.call(c, rangesAmbiguous))
-    ranges <- c(rangesClear, rangesAmbiguous)
+    rangesAmbiguous <- suppressWarnings(do.call(c, rangesAmbiguous)) # objects may have different seq levels
+    ranges <- suppressWarnings(c(rangesClear, rangesAmbiguous)) # objects may have different seq levels
 
     
   } else {

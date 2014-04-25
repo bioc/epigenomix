@@ -40,8 +40,8 @@ options(continue=" ")
 \newpage
 
 \section{Introduction}
-This package provides methods for an integrative analysis of gene transcription and epigenetic data, especially histone ChIP-seq data. Histone modifications are an epigenetic key mechanism to activate or repress the transcription of genes. Several data sets consisting of matched transcription data and histone modification data localized by ChIP-seq have been published. However, both data types are often analysed separately and results are compared afterwards. The methods implemented here are designed to detect transcripts that are differentially transcribed between two conditions due to an altered histone modification and are suitable for very small sample sizes. Transcription data may be obtained by microarrays or RNA-seq.\\
-Briefly, the following workflow is described in this documnet:
+This package provides methods for an integrative analysis of gene transcription and epigenetic data, especially histone ChIP-seq data \cite{Klein2014}. Histone modifications are an epigenetic key mechanism to activate or repress the transcription of genes. Several data sets consisting of matched transcription data and histone modification data localized by ChIP-seq have been published. However, both data types are often analysed separately and results are compared afterwards. The methods implemented here are designed to detect transcripts that are differentially transcribed between two conditions due to an altered histone modification and are suitable for very small sample sizes. Transcription data may be obtained by microarrays or RNA-seq.\\
+Briefly, the following workflow is described in this document:
 \begin{enumerate}
   \item Matching of both data types by assigning the number of ChIP-seq reads aligning within the promoter region to the respective transcription value
   \item Normalization of ChIP-seq values
@@ -66,7 +66,7 @@ Using RNA-seq instead of microarrays has the advantage that the abundance of ind
 data(fpkm)
 head(fpkm[c(-2,-8), ])
 @
-The last six columns were not included in the Cuffdiff output, but were extracted from the annotation file given as input to Cuffdiff. Next, we construct an \Rclass{ExpressionSet} object so that we can handle RNA-seq data in the way as microarray data:
+The last six columns were not included in the Cuffdiff output, but were extracted from the annotation file given as input to Cuffdiff. Next, we construct an \Rclass{ExpressionSet} object so that we can handle RNA-seq data in the same way as microarray data:
 <<label=RNAseqToESet>>=
 mat <- log2(as.matrix(fpkm[, c("CEBPA_WT", "CEBPA_KO")]))
 rownames(mat) <- fpkm$tss_id
@@ -102,13 +102,16 @@ head(transToTSS)
 Such a data frame can be obtained e.g. using \Rpackage{biomaRt}:
 <<label=BiomaRt,eval=FALSE>>=
 library("biomaRt")
-transcripts <- unique(unlist(transToTSS))
+transcripts <- unique(unlist(probeToTrans))
 mart <- useMart("ensembl", dataset="mmusculus_gene_ensembl")
 transToTSS <- getBM(attributes=c("ensembl_transcript_id",
     "chromosome_name", "transcript_start",
     "transcript_end", "strand"),
     filters="ensembl_transcript_id",
     values=transcripts, mart=mart)
+indNeg <- transToTSS$strand == -1
+transToTSS$transcript_start[indNeg] <- transToTSS$transcript_end[indNeg]
+transToTSS$transcript_end <- NULL
 @
 Having these information, the promoter region for each probe can be calculated unsing \Rmethod{matchProbeToPromoter}. Argument \Rfunarg{mode} defines how probes with multiple transcripts should be handled.
 <<label=dataMatching>>=
@@ -204,7 +207,7 @@ plotClassification(mlmm)
 \end{center}
 \caption{Model fit and classification results of the maximum likelihood approach.}
 \end{figure}
-%mm = mlMixModel(intData[,"z"], normNull=c(2,3), expNeg=1, expPos=4, sdNormNullInit=c(5, 6), rateExpNegInit=0.1, rateExpPosInit=0.1, pi=rep(1/4,4))
+
 
 \subsection{Bayesian approach}
 Alternatively, an Bayesian approach can be used.
