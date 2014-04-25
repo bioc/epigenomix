@@ -1,0 +1,20 @@
+citEntry(entry="article",
+         title = "Integrative analysis of histone ChIP-seq and transcription data using Bayesian mixture models",
+         author = personList(as.person("Hans-Ulrich Klein"),
+                             as.person("Martin Schaefer"),
+                             as.person("Bo T. Porse"),
+                             as.person("Marie S. Hasemann"),
+                             as.person("Katja Ickstadt"),
+                             as.person("Martin Dugas")),
+         year = 2014,
+         journal = "Bioinformatics",
+         volume = "30",
+         number = "8",
+         pages = "1154-1162",
+         doi = "10.1093/bioinformatics/btu003",
+         url = "http://bioinformatics.oxfordjournals.org/content/30/8/1154.abstract",
+         
+         textVersion = 
+         paste("Hans-Ulrich Klein et al. (2014):", 
+               "Integrative analysis of histone ChIP-seq and transcription data using Bayesian mixture models.",
+               "Bioinformatics 30(8):1154-1162"))
