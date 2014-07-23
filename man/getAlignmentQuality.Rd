@@ -1,0 +1,65 @@
+\name{getAlignmentQuality}
+\alias{getAlignmentQuality}
+%- Also NEED an '\alias' for EACH other topic documented here.
+\title{blub
+%%  ~~function to do ... ~~
+}
+\description{
+%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+}
+\usage{
+getAlignmentQuality(bamFile, verbose = FALSE, mc.cores = 1)
+}
+%- maybe also 'usage' for other objects documented here.
+\arguments{
+  \item{bamFile}{
+%%     ~~Describe \code{bamFile} here~~
+}
+  \item{verbose}{
+%%     ~~Describe \code{verbose} here~~
+}
+  \item{mc.cores}{
+%%     ~~Describe \code{mc.cores} here~~
+}
+}
+\details{
+%%  ~~ If necessary, more details than the description above ~~
+}
+\value{
+%%  ~Describe the value returned
+%%  If it is a LIST, use
+%%  \item{comp1 }{Description of 'comp1'}
+%%  \item{comp2 }{Description of 'comp2'}
+%% ...
+}
+\references{
+%% ~put references to the literature/web site here ~
+}
+\author{
+%%  ~~who you are~~
+}
+\note{
+%%  ~~further notes~~
+}
+
+%% ~Make other sections like Warning with \section{Warning }{....} ~
+
+\seealso{
+%% ~~objects to See Also as \code{\link{help}}, ~~~
+}
+\examples{
+##---- Should be DIRECTLY executable !! ----
+##-- ==>  Define data, use random,
+##--	or do  help(data=index)  for the standard data sets.
+
+## The function is currently defined as
+structure(function (bamFile, verbose = FALSE, mc.cores = 1) 
+standardGeneric("getAlignmentQuality"), generic = structure("getAlignmentQuality", package = ".GlobalEnv"), package = ".GlobalEnv", group = list(), valueClass = character(0), signature = "bamFile", default = `\001NULL\001`, skeleton = (function (bamFile, 
+    verbose = FALSE, mc.cores = 1) 
+stop("invalid call in method dispatch to 'getAlignmentQuality' (no default method)", 
+    domain = NA))(bamFile, verbose, mc.cores), class = structure("standardGeneric", package = "methods"))
+}
+% Add one or more standard keywords, see file 'KEYWORDS' in the
+% R documentation directory.
+\keyword{ ~kwd1 }
+\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line

@@ -28,6 +28,10 @@ setGeneric("weights", function(object)
            standardGeneric("weights"))
 
 # other methods
+setGeneric("calculateCrossCorrelation", function(object, srange=c(100, 500), bin=10, minReads=100000, mc.cores=1)
+           standardGeneric("calculateCrossCorrelation"),
+           signature="object")
+
 setGeneric("bayesMixModel", function(z, normNull=c(), expNeg=c(), expPos=c(), gamNeg=c(), gamPos=c(),
                                      sdNormNullInit=c(), rateExpNegInit=c(), rateExpPosInit=c(),
                                      shapeGamNegInit=c(), scaleGamNegInit=c(), shapeGamPosInit=c(), scaleGamPosInit=c(),
@@ -38,6 +42,10 @@ setGeneric("bayesMixModel", function(z, normNull=c(), expNeg=c(), expPos=c(), ga
                                      itb, nmc, thin, average="mean", gammaProposalFactor, gammaShapeGrid)
            standardGeneric("bayesMixModel"),
            signature="z")
+
+setGeneric("getAlignmentQuality", function(bamFile, verbose=FALSE, mc.cores=1)
+           standardGeneric("getAlignmentQuality"),
+           signature="bamFile")
 
 setGeneric("integrateData", function(expr, chipseq, factor, reference)
            standardGeneric("integrateData"))

@@ -37,6 +37,8 @@ export(
 
     # other methods from AllGenerics.R
     bayesMixModel,
+    calculateCrossCorrelation,
+    getAlignmentQuality,
     integrateData,
     matchProbeToPromoter,
     mlMixModel,
