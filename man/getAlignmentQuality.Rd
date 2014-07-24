@@ -1,5 +1,6 @@
 \name{getAlignmentQuality}
 \alias{getAlignmentQuality}
+\alias{getAlignmentQuality,character-method}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{blub
 %%  ~~function to do ... ~~

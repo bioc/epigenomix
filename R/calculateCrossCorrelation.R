@@ -49,11 +49,10 @@
       return(cors)
   }, mc.cores=mc.cores)
 
-  cors <- matrix(unlist(chrCor), nrow=length(chrCor), ncol=length(chrCor[[1]]))
+  cors <- do.call(cbind, chrCor)
   weights <- numReads / sum(numReads)
-  cors <- apply(cors * weights, 2, sum)
-  names(cors) <- names(chrCor[[1]])
-  
+  cors <- apply(t(cors) * weights, 2, sum)
+    
   return(cors)
 }
 
