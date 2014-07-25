@@ -29,7 +29,7 @@ setGeneric("weights", function(object)
 
 # other methods
 setGeneric("calculateCrossCorrelation", function(object, shift=c(200, 250, 300), bin=10, 
-                                                 mode="both", minReads=10000, chrs=NA, mc.cores=1)
+                                                 mode="none", minReads=10000, chrs=NA, mc.cores=1)
            standardGeneric("calculateCrossCorrelation"),
            signature="object")
 

@@ -16,7 +16,7 @@ the shift (given in base pairs) that maximizes the cross correlation.
 }
 
 \usage{
-calculateCrossCorrelation(object, shift=c(200,250,300), bin=10, mode="both", minReads=10000, chrs=NA, mc.cores=1)
+calculateCrossCorrelation(object, shift=c(200,250,300), bin=10, mode="none", minReads=10000, chrs=NA, mc.cores=1)
 }
 
 \arguments{

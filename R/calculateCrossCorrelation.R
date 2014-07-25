@@ -1,4 +1,4 @@
-.calculateCrossCorrelation <- function(object, shift=c(200, 250, 300), bin=10, mode="both", minReads=10000, chrs=NA, mc.cores=1) {
+.calculateCrossCorrelation <- function(object, shift=c(200, 250, 300), bin=10, mode="none", minReads=10000, chrs=NA, mc.cores=1) {
 
   if (any(shift < 0)) {stop("shift musst be larger or equal 0")}
 
