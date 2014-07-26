@@ -3,6 +3,7 @@ import(BiocGenerics)
 import(Biobase)
 import(IRanges)
 import(GenomicRanges)
+importFrom("Rsamtools", scanBamHeader, ScanBamParam, countBam, scanBamFlag, scanBam, bamFlagTest)
 
 importClassesFrom(beadarray, ExpressionSetIllumina)
 
