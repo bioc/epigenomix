@@ -68,7 +68,7 @@ calculateCrossCorrelation(object, shift=c(200,250,300), bin=10, mode="none", min
 
   The different modes define whether regions without coverage or with
   only one covered strand should used. The original implementation in
-  the package \"spp\" does not make use of regions without
+  the package "spp" does not make use of regions without
   coverage. However, this seems to be a loss of information, since no
   coverage has also a biological meaning in a ChIP-seq experiment. If
   the fragment size is approximately 500bp, setting \code{shift=seq(200, 800,
@@ -82,7 +82,7 @@ calculateCrossCorrelation(object, shift=c(200,250,300), bin=10, mode="none", min
 
 \value{
   A numeric vector with the cross correlation for each shift. The names
-  of the vector corresponds to the shifts.
+  of the vector correspond to the shifts.
 }
 
 \references{
