@@ -7,11 +7,11 @@
 Calculate the cross correlation for a given GRanges object.
 }
 \description{
-This method calculates the cross correlation, i.e. the pearson
+This method calculates the cross correlation, i.e. the Pearson
 correlation between the coverages of the positive and negative strand
 from a DNA sequencing experiment. The cross correlation can be used as a
 quality measure in ChIP-seq experiments (Kharchenko et al. 2008). Cross
-correlation can also be used to estimate the fragment size by deteriming
+correlation can also be used to estimate the fragment size by determining
 the shift (given in base pairs) that maximizes the cross correlation. 
 }
 
@@ -32,15 +32,15 @@ calculateCrossCorrelation(object, shift=c(200,250,300), bin=10, mode="none", min
   If bin is larger than one, the coverage is calculated for bins of size
   \code{bin} and not for each single base. This speeds up calculations
   and might be beneficial in cases of low coverage. Note that shifting
-  is performed after binning, so that the shift(s) should be multiple of
-  \code{bin} (otherwise, it is rounded).
+  is performed after binning, so that the shift(s) should be a multiple of
+  \code{bin} (otherwise, shift is rounded to the nearest multiple of bin).
 }
   \item{mode}{
   \code{mode} defines how bases (or bins) without reads are
   handled. \code{both} means that only bases covered on both strands
-  are included when calculating the correlation. \code{one} means, that
-  the base has to be covered on at least one strand whereas all bases
-  are used independent of their coverage if \code{mode} is \code{none}.
+  are included when calculating the correlation. \code{one} means that
+  the base has to be covered on at least one strand and \code{none} mean
+  that all bases are included independent of their coverage.
 }
   \item{minReads}{
   If not at least \code{minReads} are mapped to a chromosome, the
