@@ -9,10 +9,13 @@
   }
 
   if (method == "scaleTotal") {
-    if (any(is.na(pData(object)$totalCount))) {
-      stop("Column totalCount in ChIPseqSet must not contain NA")
+    if (!is.element("totalCount", colnames(colData(object)))) {
+      stop("colData must contain the column totalCount.")
     }
-    n <- pData(object)$totalCount
+    if (any(is.na(pData(object)$totalCount))) {
+      stop("Column totalCount in ChIPseqSet must not contain NA.")
+    }
+    n <- colData(object)$totalCount
     s <- median(n) / n
     chipVals(object) <- t(t(chipVals(object)) * s)
 

@@ -174,9 +174,9 @@ plot(chipVals(chipSet)[,1], chipVals(chipSet)[,2],
 In order to integrate both data types, a correlation score $Z$ (motivated by the work of \cite{Schaefer2012}) can be calculated by multiplying the standardized difference of gene expression values with the standardized difference of ChIP-seq values. Prior to this, pheno type information must be added to the \Robject{chipSet} object.
 <<label=integrateData>>=
 eSet$CEBPA
-sampleNames(chipSet)
+colnames(chipSet)
 chipSet$CEBPA <- factor(c("wt", "ko"))
-pData(chipSet)
+colData(chipSet)
 
 intData <- integrateData(eSet, chipSet, 
     factor="CEBPA", reference="wt")

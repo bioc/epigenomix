@@ -1,7 +1,10 @@
 \name{summarizeReads}
 \alias{summarizeReads}
+\alias{summarizeReads,GRangesList,GRanges,character-method}
+\alias{summarizeReads,GRangesList,GRanges,missing-method}
 \alias{summarizeReads,GRangesList,GRangesList,character-method}
 \alias{summarizeReads,GRangesList,GRangesList,missing-method}
+
 
 \title{
   Count reads lying within given regions.
@@ -35,7 +38,10 @@
     An object of type \code{GRangesList} storing the promoter regions.
     Each element can be interpreted as gene or probe that has one or
     more promoters. The names of the lists' elements are used as
-    feature names.
+    row names.
+    Alternatively, regions can be a \code{GRanges} object which as then handled
+    like a \code{GRangesList} object with only one region in each list element.
+    names of the \code{GRanges} are used as row names in this case.
   }
   \item{summarize}{
     Defines how regions with several ranges are handled. "average"

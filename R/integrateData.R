@@ -1,16 +1,16 @@
 .integrateData <- function(expr, chipseq, factor, reference) {
 
   if (!(is.element(factor, colnames(pData(expr))) &
-      is.element(factor, colnames(pData(chipseq))))) {
+      is.element(factor, colnames(colData(chipseq))))) {
     stop("Argument \"factor\" must be a pheno data column in \"expr\" and \"chipseq\".")
   }
 
-  if (class(pData(expr)[, factor]) != "factor" | class(pData(chipseq)[, factor]) != "factor") {
+  if (class(pData(expr)[, factor]) != "factor" | class(colData(chipseq)[, factor]) != "factor") {
     stop(paste("\"", factor, "\" must be of class factor in \"expr\" and \"chipseq\".", sep=""))
   }
 
   geFac <- pData(expr)[, factor]
-  chipFac <- pData(chipseq)[, factor]
+  chipFac <- colData(chipseq)[, factor]
 
   if (length(levels(geFac)) != 2 | length(levels(chipFac)) != 2 |
       !all(is.element(levels(geFac), levels(chipFac)))) {
@@ -23,9 +23,9 @@
     stop("\"reference\" must be a level of \"factor\".")
   }
 
-  ids <- intersect(featureNames(expr), featureNames(chipseq))
+  ids <- intersect(featureNames(expr), rownames(chipseq))
   if (length(ids) == 0) {
-    stop("No commmon features.")
+    stop("No commmon features: At least one entry must be in featureNames(expr) and in rownames(chipseq).")
   }
   
   treatment <- setdiff(levels(geFac), reference)

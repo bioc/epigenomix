@@ -72,9 +72,15 @@ normalizeChIP(object, method)
 }
 
 \examples{
-  cSet <- new("ChIPseqSet", 
-    chipVals=matrix(c(5,6,5,6,10,12,10,12), nrow=4),
-    phenoData=AnnotatedDataFrame(data.frame(totalCount=c(30,20))))
+  chip <- matrix(c(5,6,5,6,10,12,10,12), nrow=4,
+                 dimnames=list(c("f1", "f2", "f3", "f4"), c("s1", "s2")))
+  rowData <- GRanges(IRanges(start=c(10, 20, 30, 40), end=c(11, 21, 31, 41)),
+                     seqnames=c("1", "1", "1", "1"))
+  names(rowData) = rownames(chip)
+  chipDf <- DataFrame(totalCount=c(100, 100),
+                      row.names=colnames(chip))
+  cSet <- ChIPseqSet(chipVals=chip, rowData=rowData, colData=chipDf)
+
   chipVals(cSet)
   chipVals(normalizeChIP(cSet, method="scaleMedianRegion"))
   chipVals(normalizeChIP(cSet, method="quantile"))

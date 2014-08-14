@@ -28,15 +28,15 @@
   rownames(counts) <- names(regions)
   colnames(counts) <- sampleNames
 
-  if (summarize == "average") {
+  if (summarize == "average" & is(regions, "GRangesList")) {
     n <- sapply(regions, length)
     counts <- apply(counts, 2, function(x) {x/n})
   }
 
   totalCount <- sapply(object[sampleNames], length)
 
-  chipSet <- new("ChIPseqSet", chipVals=counts,
-      phenoData=AnnotatedDataFrame(data.frame(totalCount=totalCount)))
+  chipSet <- ChIPseqSet(chipVals=counts, rowData=regions,
+      colData=DataFrame(totalCount=totalCount))
 
   return(chipSet)
 }
@@ -47,7 +47,17 @@ setMethod("summarizeReads",
     .summarizeReads)
 
 setMethod("summarizeReads",
+    signature=c(object="GRangesList", regions="GRanges", summarize="character"),
+    .summarizeReads)
+
+setMethod("summarizeReads",
     signature=c(object="GRangesList", regions="GRangesList", summarize="missing"),
+    function(object, regions) {
+      .summarizeReads(object=object, regions=regions, summarize="add")
+    })
+
+setMethod("summarizeReads",
+    signature=c(object="GRangesList", regions="GRanges", summarize="missing"),
     function(object, regions) {
       .summarizeReads(object=object, regions=regions, summarize="add")
     })
