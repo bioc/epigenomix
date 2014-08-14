@@ -126,7 +126,7 @@ chipSetRaw <- summarizeReads(mappedReads, promoters, summarize="add")
 chipSetRaw
 head(chipVals(chipSetRaw))
 @
-The method returns an object of class \Rclass{ChIPseqSet}, which is derived from class \Rclass{eSet} and is the ChIP-seq counterpart to \Rclass{ExpressionSet}.
+The method returns an object of class \Rclass{ChIPseqSet}, which is derived from class \Rclass{SummarizedExperiment}.
 
 \subsubsection{RNA-seq data}
 In case of RNA-seq data, we have one transcription value for each group of transcripts sharing the same TSS. Hence, a promoter region can be simply assigned to each transcription value:
