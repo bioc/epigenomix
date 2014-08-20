@@ -9,6 +9,8 @@
 \alias{chipVals<-,ChIPseqSet,matrix-method}
 \alias{chipVals}
 \alias{chipVals,ChIPseqSet-method}
+\alias{cpm}
+\alias{cpm,ChIPseqSet-method}
 
 \title{Class \code{"ChIPseqSet"}}
 \description{
@@ -52,6 +54,13 @@ Class \code{"\linkS4class{SummarizedExperiment}"}, directly.
       matrix with read counts.}
     \item{chipVals<-}{\code{signature(object = "ChIPseqSet", value = "matrix")}:
       Sets the matrix with read counts.}
+    \item{cpm}{\code{signature(object = "ChIPseqSet", libSize,
+	log2=FALSE, priorCounts=0.1)}: Returns
+      an object of \code{ChIPseqSet} with read counts standardized by
+      library size - counts per million (cpm). If the library size is
+      not given, the column sums of the given object are used. Cpm
+      values are logarithmized after adding \code{priorCounts},
+      if log2 is \code{TRUE}.}
   }
 }
 

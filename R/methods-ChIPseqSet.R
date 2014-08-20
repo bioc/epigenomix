@@ -36,6 +36,20 @@ setReplaceMethod("chipVals", signature(object="ChIPseqSet", value="matrix"),
                  }
 )
 
+setMethod("cpm", signature(object="ChIPseqSet"),
+  function(object, libSize, log2=FALSE, priorCount=0.1) {
+      if (missing(libSize)) {
+        libSize <- apply(chipVals(object), 2, sum)
+      }
+      if (length(libSize) != ncol(object)) {
+        stop("Length of libSize must equal number of samples.")
+      }
+      chipVals(object) <- t(t(chipVals(object)) * (1000000 / libSize))
+      if (log2) {
+        chipVals(object) <- log2(chipVals(object) + priorCount)
+      }
+      return(object)
+})
 
 setValidity("ChIPseqSet", function(object){
   if(length(assays(object)) != 1)

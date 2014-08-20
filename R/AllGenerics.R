@@ -11,6 +11,10 @@ setGeneric("chipVals", function(object)
 setGeneric("chipVals<-", function(object, value)
            standardGeneric("chipVals<-"))
 
+setGeneric("cpm", function(object, libSize, log2=FALSE, priorCount=0.1)
+           standardGeneric("cpm"),
+           signature="object")
+
 # methods-MixModel.R
 setGeneric("chains", function(object)
            standardGeneric("chains"))

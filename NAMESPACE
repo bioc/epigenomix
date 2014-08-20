@@ -26,6 +26,7 @@ exportMethods(
 export(
     # methods-ChIPseqSet.R
     chipVals, "chipVals<-",
+    cpm,
     ChIPseqSet,
 
     # methods-MixModel.R
