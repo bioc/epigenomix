@@ -5,7 +5,7 @@
   }
 
   geoMean <- function(x) {
-    return(prod(x)^(1/length(x)))
+    return(exp(mean(log(x))))
   }
 
   if (method == "scaleTotal") {
