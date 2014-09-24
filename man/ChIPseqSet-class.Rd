@@ -55,7 +55,7 @@ Class \code{"\linkS4class{SummarizedExperiment}"}, directly.
     \item{chipVals<-}{\code{signature(object = "ChIPseqSet", value = "matrix")}:
       Sets the matrix with read counts.}
     \item{cpm}{\code{signature(object = "ChIPseqSet", libSize,
-	log2=FALSE, priorCounts=0.1)}: Returns
+	log2=FALSE, priorCount=0.1)}: Returns
       an object of \code{ChIPseqSet} with read counts standardized by
       library size - counts per million (cpm). If the library size is
       not given, the column sums of the given object are used. Cpm

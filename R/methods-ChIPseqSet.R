@@ -44,9 +44,14 @@ setMethod("cpm", signature(object="ChIPseqSet"),
       if (length(libSize) != ncol(object)) {
         stop("Length of libSize must equal number of samples.")
       }
-      chipVals(object) <- t(t(chipVals(object)) * (1000000 / libSize))
       if (log2) {
-        chipVals(object) <- log2(chipVals(object) + priorCount)
+	priorCountScaled <- libSize / mean(libSize) * priorCount
+	libSize <- libSize + (nrow(object) * priorCountScaled)
+      }
+      if (log2) {
+        chipVals(object) <- log2(t( (t(chipVals(object)) + priorCountScaled) * (1000000 / libSize) ))
+      } else {
+        chipVals(object) <- t(t(chipVals(object)) * (1000000 / libSize))
       }
       return(object)
 })
