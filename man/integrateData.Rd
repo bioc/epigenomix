@@ -90,12 +90,12 @@ eSet <- ExpressionSet(ge, phenoData=AnnotatedDataFrame(geDf))
 chip <- matrix(c(10,20,20,22), nrow=2)
 row.names(chip) <- c("100_at", "200_at")
 colnames(chip) <- c("c", "t")
-rowData <- GRanges(IRanges(start=c(10,50), end=c(20,60)), seqnames=c("1","1"))
-names(rowData) = c("100_at", "200_at")
+rowRanges <- GRanges(IRanges(start=c(10,50), end=c(20,60)), seqnames=c("1","1"))
+names(rowRanges) = c("100_at", "200_at")
 chipDf <- DataFrame(status=factor(c("control", "treated")),
   totalCount=c(100, 100),
   row.names=colnames(chip))
-cSet <- ChIPseqSet(chipVals=chip, rowData=rowData, colData=chipDf)
+cSet <- ChIPseqSet(chipVals=chip, rowRanges=rowRanges, colData=chipDf)
 
 integrateData(eSet, cSet, factor="status", reference="control")
 }

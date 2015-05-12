@@ -1,5 +1,5 @@
 setClass("ChIPseqSet",
-         contains = "SummarizedExperiment"
+         contains = "RangedSummarizedExperiment"
          )
 
 setClass("MixModel",

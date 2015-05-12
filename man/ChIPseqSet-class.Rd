@@ -16,13 +16,13 @@
 \description{
   A class for storing count data obtained from ChIP-seq experiments by
   counting the number of reads lying within regions. The class extends
-  \code{\linkS4class{SummarizedExperiment}}.
+  \code{\linkS4class{RangedSummarizedExperiment}}.
 }
 
 \section{Objects from the Class}{
   Objects can be created by calls of the form
   \code{ChIPseqSet(chipVals=countDataMatrix,
-                   rowData=genomicRegions,
+                   rowRanges=genomicRegions,
                    colData=DataFrame(row.names=colnames(countDataMatrix)),
                    ...)}.
   However, one will most likely create a \code{ChIPseqSet} object by
@@ -31,9 +31,9 @@
 
 \section{Slots}{
   \describe{
-    \item{\code{exptData}:}{An optional \code{SimpleList} of arbitrary
+    \item{\code{metadata}:}{An optional \code{list} of arbitrary
       content describing the overall experiment.}
-    \item{\code{rowData}:}{Object of class \code{"GRanges"} or \code{"GRangesList"}
+    \item{\code{rowRanges}:}{Object of class \code{"GRanges"} or \code{"GRangesList"}
       containing the genomic regions where the reads were counted.}
     \item{\code{colData}:}{Object of class \code{"DataFrame"}
       containing information on variable values of the samples. Some methods
@@ -46,7 +46,7 @@
 }
 
 \section{Extends}{
-Class \code{"\linkS4class{SummarizedExperiment}"}, directly.
+Class \code{"\linkS4class{RangedSummarizedExperiment}"}, directly.
 }
 \section{Methods}{
   \describe{

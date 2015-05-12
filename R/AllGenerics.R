@@ -1,9 +1,9 @@
 # methods-ChIPseqSet.R
-setGeneric("ChIPseqSet", function(chipVals, rowData,
+setGeneric("ChIPseqSet", function(chipVals, rowRanges,
                                   colData = DataFrame(row.names=colnames(chipVals)),
-                                  exptData = SimpleList(), ...)
+                                  metadata = list(), ...)
            standardGeneric("ChIPseqSet"),
-           signature=c("chipVals", "rowData"))
+           signature=c("chipVals", "rowRanges"))
 
 setGeneric("chipVals", function(object)
            standardGeneric("chipVals"))

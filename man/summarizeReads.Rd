@@ -60,9 +60,10 @@
 
   This method uses \code{\link{countOverlaps}} and counts
   each read that overlaps with at least one base. 
-%  If more flexibility is needed, \code{\link{summarizeOverlaps}}
-%  might be an option. In contrast to this method,
-%  \code{\link{summarizeOverlaps}} ensures that each
+%  If more flexibility is needed,
+%  \code{\link[GenomicAlignments]{summarizeOverlaps}} might
+%  be an option. In contrast to this method,
+%  \code{\link[GenomicAlignments]{summarizeOverlaps}} ensures that each
 %  read is counted only once, even if it overlaps with different regions.
 }
 
@@ -79,7 +80,7 @@
 \seealso{
   \code{\link{matchProbeToPromoter}}
   \code{\link{ChIPseqSet-class}}
-%  \code{\link[GenomicRanges]{summarizeOverlaps}}
+%  \code{\link[GenomicAlignments]{summarizeOverlaps}}
 }
 
 \examples{

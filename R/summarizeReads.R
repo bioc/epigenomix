@@ -35,7 +35,7 @@
 
   totalCount <- sapply(object[sampleNames], length)
 
-  chipSet <- ChIPseqSet(chipVals=counts, rowData=regions,
+  chipSet <- ChIPseqSet(chipVals=counts, rowRanges=regions,
       colData=DataFrame(totalCount=totalCount))
 
   return(chipSet)

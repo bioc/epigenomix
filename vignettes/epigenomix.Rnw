@@ -82,7 +82,7 @@ The example histone ChIP-seq data is stored as \Rclass{GRangesList} object:
 data(mappedReads)
 names(mappedReads)
 @
-There are two elements within the list. One \textit{CEBPA} wild type and one knock-out sample. Most of the originally obtained reads were removed to reduce storage space. Further, the reads were extended towards the 3 prime end to the mean DNA fragment size of 200bps and duplicated reads were removed. See R packages \Rpackage{Rsamtools} and \Rpackage{GenomicRanges} how to read in and process sequence reads
+There are two elements within the list. One \textit{CEBPA} wild type and one knock-out sample. Most of the originally obtained reads were removed to reduce storage space. Further, the reads were extended towards the 3 prime end to the mean DNA fragment size of 200bps and duplicated reads were removed. See R packages \Rpackage{Rsamtools} and \Rpackage{GenomicAlignments} how to read in and process sequence reads
 
 \subsection{Data matching}
 The presented ChIP-seq data lozalized H3K4me3 histone modifications. This modification primarily occures at promoter regions. Hence, we assign ChIP-seq values to transcription values by counting the number of reads lying wihtin the promoter of the measured transcript.
@@ -126,7 +126,7 @@ chipSetRaw <- summarizeReads(mappedReads, promoters, summarize="add")
 chipSetRaw
 head(chipVals(chipSetRaw))
 @
-The method returns an object of class \Rclass{ChIPseqSet}, which is derived from class \Rclass{SummarizedExperiment}.
+The method returns an object of class \Rclass{ChIPseqSet}, which is derived from class \Rclass{RangedSummarizedExperiment}.
 
 \subsubsection{RNA-seq data}
 In case of RNA-seq data, we have one transcription value for each group of transcripts sharing the same TSS. Hence, a promoter region can be simply assigned to each transcription value:

@@ -1,8 +1,10 @@
 import(methods)
 import(BiocGenerics)
 import(Biobase)
+import(S4Vectors)
 import(IRanges)
 import(GenomicRanges)
+import(SummarizedExperiment)
 importFrom("Rsamtools", scanBamHeader, ScanBamParam, countBam, scanBamFlag, scanBam, bamFlagTest)
 
 importClassesFrom(beadarray, ExpressionSetIllumina)
