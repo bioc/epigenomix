@@ -1,24 +1,26 @@
 setMethod("ChIPseqSet", signature(chipVals="matrix", rowRanges="GRanges"),
           function(chipVals, rowRanges, colData=DataFrame(row.names=colnames(chipVals)),
                    metadata=list(), ...) {
-              ssla <- new("ShallowSimpleListAssays", data=SimpleList(chipVals=chipVals))
-              new("ChIPseqSet",
-                  assays = ssla,
+              new("ChIPseqSet", SummarizedExperiment(
+                  assays = SimpleList(chipVals = chipVals),
                   rowRanges = rowRanges,
                   colData = colData,
-                  metadata = as.list(metadata))
+                  metadata = as.list(metadata),
+                  ...
+              ))
           }
 )
 
 setMethod("ChIPseqSet", signature(chipVals="matrix", rowRanges="GRangesList"),
           function(chipVals, rowRanges, colData=DataFrame(row.names=colnames(chipVals)),
                    metadata=list(), ...) {
-              ssla <- new("ShallowSimpleListAssays", data=SimpleList(chipVals=chipVals))
-              new("ChIPseqSet",
-                  assays = ssla,
+              new("ChIPseqSet", SummarizedExperiment(
+                  assays = SimpleList(chipVals = chipVals),
                   rowRanges = rowRanges,
                   colData = colData,
-                  metadata = as.list(metadata))
+                  metadata = as.list(metadata),
+                  ...
+              ))
           }
 )
 
