@@ -3,10 +3,11 @@
 \alias{normalizeChIP,ChIPseqSet,character-method}
 
 \title{
-  Normalization of ChIP-seq count data.
+  Normalization of ChIP-seq count data. (deprecated)
 }
 
 \description{
+  This method is deprecated. Use normalize instead.
   This method implements some normalization approaches for
   ChIP-seq data after counting reads within regions or bins. Similar
   methods are often applied to RNA-seq data after counting reads within
@@ -82,6 +83,6 @@ normalizeChIP(object, method)
   cSet <- ChIPseqSet(chipVals=chip, rowRanges=rowRanges, colData=chipDf)
 
   chipVals(cSet)
-  chipVals(normalizeChIP(cSet, method="scaleMedianRegion"))
-  chipVals(normalizeChIP(cSet, method="quantile"))
+  chipVals(normalize(cSet, method="scaleMedianRegion"))
+  chipVals(normalize(cSet, method="quantile"))
 }

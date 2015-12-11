@@ -1,5 +1,7 @@
 .normalizeChIP <- function(object, method) {
 
+  .Deprecated("normalize")
+
   if (!is.element(method, c("scaleTotal", "scaleRegion", "scaleMedianRegion", "quantile"))) {
     stop("Argument norm must be \"quantile\", \"scaleMedianRegion\", \"scaleRegion\" or \"scaleTotal\".")
   }
