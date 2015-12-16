@@ -56,10 +56,10 @@ calculateCrossCorrelation(object, shift=c(200,250,300), bin=10, mode="none", min
 }
 
 \details{
-  Only the 5 prime start positions of the reads are used for calculating
-  the coverage. So, after removing duplicates in a single end sequencing
+  Only 5 prime start positions of reads are used for calculating
+  the coverage. Therefore, after removing duplicates in a single end sequencing
   experiment, the coverage can not be larger than one, if the bin size is
-  set to one. (In this setting, mode \code{both} makes no sense.)
+  set to one. (In this setting, mode \code{both} is meaningless.)
   If bin is larger than one, the coverage within a bin is aggregated.
   Then, the correlation is calculated for each shift. A shift
   (given in basepairs) should be multiple of the bin size
@@ -71,8 +71,8 @@ calculateCrossCorrelation(object, shift=c(200,250,300), bin=10, mode="none", min
   the package "spp" does not make use of regions without
   coverage. However, this seems to be a loss of information, since no
   coverage has also a biological meaning in a ChIP-seq experiment. If
-  the fragment size is approximately 500bp, setting \code{shift=seq(200, 800,
-  10)}, \code{bin=10} and \code{mode="none"} should be a good setting.
+  the fragment size is approximately 500bp, setting \code{shift=seq(200, 800, 10)},
+  \code{bin=10} and \code{mode="none"} should be a good setting.
 
   After the cross correlation was calculated for each chromosome,
   the weighted mean correlation across all chromosomes is

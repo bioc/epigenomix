@@ -38,7 +38,7 @@
 }
 
 
-.normalize <- function(object, method, isLogScale=FALSE, trim=0.3, totalCounts, ...) {
+.normalize <- function(object, method, isLogScale=FALSE, trim=0.3, totalCounts) {
 
     if (!is.element(method, c("scale", "scaleMedianRegion", "quantile", "tmm"))) {
         stop("Argument method must be \"quantile\", \"scaleMedianRegion\", \"scale\" or \"tmm\".")
