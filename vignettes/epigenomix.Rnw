@@ -103,7 +103,7 @@ Such a data frame can be obtained e.g. using \Rpackage{biomaRt}:
 <<label=BiomaRt,eval=FALSE>>=
 library("biomaRt")
 transcripts <- unique(unlist(probeToTrans))
-mart <- useMart("ensembl", dataset="mmusculus_gene_ensembl")
+mart <- useMart("ENSEMBL_MART_ENSEMBL",dataset="mmusculus_gene_ensembl", host="www.ensembl.org")
 transToTSS <- getBM(attributes=c("ensembl_transcript_id",
     "chromosome_name", "transcript_start",
     "transcript_end", "strand"),
@@ -218,7 +218,7 @@ bayesmm = bayesMixModel(intData[,"z"],
     sdNormNullInit=c(0.5, 1), rateExpNegInit=0.5, rateExpPosInit=0.5,
     shapeNorm0=c(10, 10), scaleNorm0=c(10, 10), shapeExpNeg0=0.01,
     scaleExpNeg0=0.01, shapeExpPos0=0.01, scaleExpPos0=0.01,
-    pi=rep(1/4, 4), itb=2000, nmc=8000, thin=5)
+    pi=rep(1/4, 4), sdAlpha=1, itb=2000, nmc=8000, thin=5)
 @
 \Rmethod{bayesMixModel} returns an object of class \Rclass{MixModelBayes}, which is also a subclass of \Rclass{MixModel}.
 <<label=bayesMixModel2>>=
@@ -235,14 +235,14 @@ plotClassification(bayesmm, method="mode")
 \end{center}
 \caption{Model fit and classification results of the Bayesian approach.}
 \end{figure}
-Note, that the parameters 'burn in' (\Rfunarg{itb}) and 'number of iterations' (\Rfunarg{nmc}) have to be choosen carefully. The method \Rmethod{plotChains} should be used to assess the convergence of the markov chains for each parameter. The settings here lead to a short runtime, but are unsuitable for real applications.\\
+Note, that the parameters 'burn in' (\Rfunarg{itb}) and 'number of iterations' (\Rfunarg{nmc}) have to be chosen carefully. The method \Rmethod{plotChains} should be used to assess the convergence of the markov chains for each parameter. The settings here lead to a short runtime, but are unsuitable for real applications.\\
 
 Both models tend to classify more genes to the positive component (component 4) than to the negative one (component 1):
 <<label=compMixModels>>=
 table(classification(mlmm, method="maxDens"),
       classification(bayesmm, method="mode"))
 @
-This is in line with the fact, that H3K4me3 occurs in the promoters of active genes. Since each $z$ corresponds to a probeset (and so to at least one transcript), the corresponding microarray annotation packages can be used to obtain e.g. the gene symbols of all positivly classified $z$ scores.
+This is in line with the fact that H3K4me3 occurs in the promoters of active genes. Since each $z$ corresponds to a probeset (and so to at least one transcript), the corresponding microarray annotation packages can be used to obtain e.g. the gene symbols of all positivly classified $z$ scores.
 <<label=annotation,eval=FALSE>>=
 posProbes <- rownames(intData)[classification(bayesmm, method="mode") == 4]
 library("mogene10sttranscriptcluster.db")

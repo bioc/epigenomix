@@ -46,11 +46,11 @@ setGeneric("calculateCrossCorrelation", function(object, shift=c(200, 250, 300),
 setGeneric("bayesMixModel", function(z, normNull=c(), expNeg=c(), expPos=c(), gamNeg=c(), gamPos=c(),
                                      sdNormNullInit=c(), rateExpNegInit=c(), rateExpPosInit=c(),
                                      shapeGamNegInit=c(), scaleGamNegInit=c(), shapeGamPosInit=c(), scaleGamPosInit=c(),
-                                     piInit, classificationsInit, dirichletParInit=1, shapeDir=1, scaleDir=1,
+                                     piInit, classificationsInit, dirichletParInit=1, shapeDir=1, scaleDir=1, weightsPrior="FDD", sdAlpha,
                                      shapeNorm0=c(), scaleNorm0=c(), shapeExpNeg0=c(), scaleExpNeg0=c(), shapeExpPos0=c(), scaleExpPos0=c(),
                                      shapeGamNegAlpha0=c(), shapeGamNegBeta0=c(), scaleGamNegAlpha0=c(), scaleGamNegBeta0=c(),
                                      shapeGamPosAlpha0=c(), shapeGamPosBeta0=c(), scaleGamPosAlpha0=c(), scaleGamPosBeta0=c(),
-                                     itb, nmc, thin, average="mean", gammaProposalFactor, gammaShapeGrid)
+                                     itb, nmc, thin, average="mean", sdShape)
            standardGeneric("bayesMixModel"),
            signature="z")
 

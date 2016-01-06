@@ -68,7 +68,7 @@
 
   Slot \code{configuration} has at least one element.
   \enumerate{
-    \item{inits}{A list with at least two elements: \code{component} and \code{pi}. 
+    \item{inits}{ A list with at least two elements: \code{component} and \code{pi}. 
                  \code{components} contains a list of objects of
                  \code{\link{MixtureComponent-class}} storing the inital parameters
                  of the mixture components. \code{pi} is a vector storing
@@ -76,10 +76,10 @@
   }
   Slot \code{results} has at least three elements.
   \enumerate{
-    \item{components}{A list of objects of \code{\link{MixtureComponent-class}} storing
+    \item{components}{ A list of objects of \code{\link{MixtureComponent-class}} storing
                       the fitted mixture components.}
-    \item{pi}{A numeric vector holding the estimated components' weights.}
-    \item{classification}{A list of numeric vectors of the same length as \code{data}
+    \item{pi}{ A numeric vector holding the estimated components' weights.}
+    \item{classification}{ A list of numeric vectors of the same length as \code{data}
                           storing the classification results.}
   }
 }
