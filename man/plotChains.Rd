@@ -81,7 +81,7 @@ mm <- bayesMixModel(z, normNull=1:2, expNeg=3, expPos=4,
   shapeNorm0=c(1, 1), scaleNorm0=c(1, 1),
   shapeExpNeg0=c(1, 1), scaleExpNeg0=c(1, 1),
   shapeExpPos0=c(1, 1), scaleExpPos0=c(1, 1),
-  itb=200, nmc=1000, thin=10)
+  sdAlpha=1, itb=200, nmc=1000, thin=10)
 plotChains(mm, chain="pi")
 plotChains(mm, component=c(2,3))
 }
