@@ -4,6 +4,8 @@
 \alias{MixModelBayes-class}
 \alias{chains}
 \alias{chains,MixModelBayes-method}
+\alias{acceptanceRate}
+\alias{acceptanceRate,MixModelBayes-method}
 
 \title{Class \code{"MixModelBayes"}}
 \description{
@@ -30,6 +32,14 @@ Class \code{"\linkS4class{MixModel}"}, directly.
   \describe{
     \item{chains}{\code{signature(object = "MixModelBayes")}: Gives
       access to the \code{chains} slot of the object.}
+     \item{acceptanceRate}{\code{signature(object = "MixModelBayes")}: Gives
+       the acceptance rate for the parameter of the Dirichlet distribution.
+       Acceptance rates between 0.3 and 0.7 are usually desired. Values
+       not smaller than 0.1 (not larger than 0.9) might still be
+       acceptable. The acceptance rate is only meaningful if the option
+       \code{weightsPrior} was set to the Finite-dimensional Dirichlet
+       prior.
+     }
   }
 }
 

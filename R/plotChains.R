@@ -1,4 +1,4 @@
-.plotChains <- function(object, chain, component, itb=1, thin=1, cols, ...) {
+.plotChains <- function(object, chain, component, itb=0, thin=1, cols, ...) {
 
   compChains <- lapply(chains(object)$components, function(x) {
                      setdiff(names(x), "name")
@@ -110,7 +110,16 @@
       rows <- ceiling(ncol(data)/cols)
     }
   }
-    
+
+  # Print warning if one chain has only NAs.
+  # This happens if no data is alocated to a component.
+  allNA <- apply(is.na(data), 2, all)
+  for (i in 1:length(allNA)) {
+    if (allNA[i]) {
+        warning(paste(main[i], ": All values are NA. Were values sampled for this chain?", sep=""))
+    }
+  }
+  
   args <- list(...)
 
   # default type is "l"
@@ -139,7 +148,13 @@
     args$ylab <- ylab[i]
     args$main <- main[i]
 
-    do.call(plot, args)
+    if (allNA[i] & !is.element("ylim", names(args))) {
+        args$ylim <- c(0, 0)
+        do.call(plot, args)
+        args$ylim <- NULL
+    } else {
+        do.call(plot, args)
+    }
   }
 }
 

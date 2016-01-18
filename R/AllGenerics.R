@@ -16,6 +16,9 @@ setGeneric("cpm", function(object, libSize, log2=FALSE, priorCount=0.1)
            signature="object")
 
 # methods-MixModel.R
+setGeneric("acceptanceRate", function(object)
+           standardGeneric("acceptanceRate"))
+
 setGeneric("chains", function(object)
            standardGeneric("chains"))
 

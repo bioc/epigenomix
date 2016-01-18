@@ -2,6 +2,7 @@
 \Rdversion{1.1}
 \docType{class}
 \alias{MixModel-class}
+\alias{as.data.frame,MixModel-method}
 \alias{classification}
 \alias{classification,MixModel,character-method}
 \alias{classification,MixModel,missing-method}
@@ -36,6 +37,10 @@
 
 \section{Methods}{
   \describe{
+    \item{as.data.frame}{\code{signature(object = "MixModel")}: Returns
+      a data.frame containing the z-scores and classification results.
+      The optional argument \code{classificationMethod} can be used to
+      change the default classification method.}
     \item{classification}{\code{signature(object = "MixModel", method =
 	"character")}: Assess classification results.}
     \item{classification}{\code{signature(object = "MixModel", method =

@@ -5,6 +5,9 @@ import(S4Vectors)
 import(IRanges)
 import(GenomicRanges)
 import(SummarizedExperiment)
+importFrom("GenomeInfoDb", keepSeqlevels)
+importFrom("MCMCpack", ddirichlet, rdirichlet)
+importFrom("parallel", mclapply)
 importFrom("Rsamtools", scanBamHeader, ScanBamParam, countBam, scanBamFlag, scanBam, bamFlagTest)
 
 importClassesFrom(beadarray, ExpressionSetIllumina)
@@ -19,8 +22,10 @@ exportClasses(
 
 exportMethods(
     # methods-MixModel.R
+    as.data.frame,
     dim,
     length,
+    normalize,
     show,
     summary
 )

@@ -84,6 +84,18 @@ setMethod("weights", signature(object="MixModel"),
             object@results$pi
           })
 
+setMethod("as.data.frame", signature(x="MixModel"),
+          function(x, classificationMethod) {
+              compNames <- sapply(components(x), function (c) {c@name})
+              if (missing(classificationMethod)) {
+                  classification <- factor(paste(classification(x), "_", compNames[classification(x)], sep=""),
+                                           levels=paste(1:length(compNames), "_", compNames, sep=""))
+              } else {
+                  classification <- factor(paste(classification(x, method=classificationMethod), "_", compNames[classification(x, method=classificationMethod)], sep=""),
+                                           levels=paste(1:length(compNames), "_", compNames, sep=""))
+              }
+              return(results <- data.frame(z=mmData(x), classification=classification, row.names=names(mmData(x))))
+          })
 
 # methods for class MixModelBayes
 setMethod("chains", signature(object="MixModelBayes"),
@@ -91,6 +103,10 @@ setMethod("chains", signature(object="MixModelBayes"),
             object@chains
           })
 
+setMethod("acceptanceRate", signature(object="MixModelBayes"),
+          function(object) {
+            mean(object@chains$dirichletParameterAcceptance)
+          })
 
 # methods for class MixModelML
 setMethod("convergence", signature(object="MixModelML"),
