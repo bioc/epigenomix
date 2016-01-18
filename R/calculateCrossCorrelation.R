@@ -2,6 +2,16 @@
 
   if (any(shift < 0)) {stop("shift musst be larger or equal 0")}
 
+  # Strand information must be present in the given object.
+  n <- sum(strand(object) == "*")
+  if (n > 0) {
+    if (n == length(object)) {
+      stop("Strand information is missing for all reads.")
+    } else {
+      warning(paste("Strand information is missing for", n, "reads."))
+    }
+  }
+  
   object <- resize(object, width=1)
   object <- split(object, seqnames(object))
   if (!is.na(chrs[1])) {
