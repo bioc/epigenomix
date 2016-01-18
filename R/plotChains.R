@@ -116,7 +116,7 @@
   allNA <- apply(is.na(data), 2, all)
   for (i in 1:length(allNA)) {
     if (allNA[i]) {
-        warning(paste(main[i], ": All values are NA. Were values sampled for this chain?", sep=""))
+        warning(paste(main[i], ": All values are NA. No values were sampled for this chain.", sep=""))
     }
   }
   
