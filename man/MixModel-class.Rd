@@ -16,6 +16,7 @@
 \alias{listClassificationMethods,MixModel-method}
 \alias{show,MixModel-method}
 \alias{summary,MixModel-method}
+\alias{summary,MixModelBayes-method}
 \alias{weights,MixModel-method}
 
 \title{Class \code{"MixModel"}}
