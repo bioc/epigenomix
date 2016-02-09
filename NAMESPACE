@@ -37,6 +37,7 @@ export(
     ChIPseqSet,
 
     # methods-MixModel.R
+    acceptanceRate,
     chains,
     classification,
     components,

@@ -79,6 +79,41 @@ setMethod("summary", signature(object="MixModel"),
             return(result)
           })
 
+setMethod("summary", signature(object="MixModelBayes"),
+          function(object) {
+            compTypes <- sapply(components(object), function(x) {x@name})
+            pi <- weights(object)
+            piLow <- apply(chains(object)$pi, 2, quantile, 0.025)
+            piHigh <- apply(chains(object)$pi, 2, quantile, 0.975)
+            result <- list()
+            for (comp in unique(compTypes)) {
+              ind <- which(compTypes == comp)
+              parameterNames <- names(components(object)[ind][[1]]@parameters)
+              df <- data.frame(row.names=as.character(ind))
+              for (parameter in parameterNames) {
+                estimation <- sapply(components(object)[ind], function(x) {x@parameters[[parameter]]})
+                if (is.element(parameter, names(chains(object)$components[ind][[1]]))) {
+                  lowCI <- sapply(chains(object)$components[ind], function(x) {quantile(x[[parameter]], 0.025)})
+                  highCI <- sapply(chains(object)$components[ind], function(x) {quantile(x[[parameter]], 0.975)})
+                  dfTmp <- data.frame(cbind(estimation, lowCI, highCI), row.names=as.character(ind))
+                  colnames(dfTmp) <- paste(parameter, c("", "(2.5%)", "(97.5%)"), sep="")
+                } else {  # parameter is fix for this component
+                  dfTmp <- data.frame(estimation)
+                  colnames(dfTmp) <- parameter
+                }
+                df <- cbind(df, dfTmp)
+              }
+              df$pi <- pi[ind]
+              df$"pi(2.5%)" <- piLow[ind]
+              df$"pi(97.5%)" <- piHigh[ind]
+              numPoints <- table(classification(object))[as.character(ind)]
+              df$numPoints <- numPoints
+              df$numPoints[is.na(numPoints)] <- 0
+              result[[comp]] <- df
+            }
+            return(result)
+          })
+
 setMethod("weights", signature(object="MixModel"),
           function(object) {
             object@results$pi
@@ -94,7 +129,7 @@ setMethod("as.data.frame", signature(x="MixModel"),
                   classification <- factor(paste(classification(x, method=classificationMethod), "_", compNames[classification(x, method=classificationMethod)], sep=""),
                                            levels=paste(1:length(compNames), "_", compNames, sep=""))
               }
-              return(results <- data.frame(z=mmData(x), classification=classification, row.names=names(mmData(x))))
+              return(data.frame(z=mmData(x), classification=classification, row.names=names(mmData(x))))
           })
 
 # methods for class MixModelBayes
