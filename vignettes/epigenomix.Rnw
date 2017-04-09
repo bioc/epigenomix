@@ -26,7 +26,7 @@
 
 \title{epigenomix --- Epigenetic and gene transcription data normalization and integration with mixture models}
 \author{Hans-Ulrich Klein, Martin Sch\"{a}fer}
-\date{December 11, 2015}
+\date{April 9, 2017}
 
 \maketitle
 
@@ -48,6 +48,7 @@ Briefly, the following workflow is described in this document:
   \item Calculation of a correlation score for each gene by multiplying the standardized difference of ChIP-seq values by the standardized difference of transcription values
   \item Fitting a (Bayesian) mixture model to this score: The implicit assignment of transcripts to mixture components is used to classify transcripts into one of the following groups: (i) Transcripts with equally directed differences in both data sets, (ii) transcripts with reversely directed differences in both data sets and (iii) transcripts with no differences in at least one of the two data sets. Group (iii) is represented by centred normal components whereas an exponential component is used for group (i) and a mirrored exponential component for group (ii).
 \end{enumerate}
+In addition to this vignette, a manuscript published in \emph{Current Protocols in Human Genetics} provides detailed documentation of a typical workflow for integrating RNA-seq and ChIP-seq data with epigenomix \cite{Klein2016}. The manuscript covers data preprocessing steps before reading data into R, mapping strategies for different histone marks, and assessment and troubleshooting of the Bayesian mixture model.
 \pagebreak
 
 \section{Data preprocessing and normalization}

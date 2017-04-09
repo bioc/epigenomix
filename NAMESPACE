@@ -9,6 +9,8 @@ importFrom("GenomeInfoDb", keepSeqlevels)
 importFrom("MCMCpack", ddirichlet, rdirichlet)
 importFrom("parallel", mclapply)
 importFrom("Rsamtools", scanBamHeader, ScanBamParam, countBam, scanBamFlag, scanBam, bamFlagTest)
+importFrom("graphics", "hist", "lines", "par", "plot", "points")
+importFrom("stats", "dexp", "dgamma", "dnorm", "rbeta", "rgamma", "rnorm", "runif")
 
 importClassesFrom(beadarray, ExpressionSetIllumina)
 
