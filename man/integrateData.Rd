@@ -83,7 +83,7 @@ Hans-Ulrich Klein (h.klein@uni-muenster.de)
 ge <- matrix(c(5,12,5,11,11,10,12,11), nrow=2)
 row.names(ge) <- c("100_at", "200_at")
 colnames(ge) <- c("c1", "c2", "t1", "t2")
-geDf <- data.frame(status=c("control", "control", "treated", "treated"),
+geDf <- data.frame(status=factor(c("control", "control", "treated", "treated")),
   row.names=colnames(ge))
 eSet <- ExpressionSet(ge, phenoData=AnnotatedDataFrame(geDf))
 
